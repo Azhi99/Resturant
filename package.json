@@ -1,0 +1,24 @@
+{
+  "name": "resturant",
+  "version": "1.0.0",
+  "description": "Resturant System",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Suly Tech",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.0",
+    "knex": "^0.21.1",
+    "moment": "^2.27.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^5.5.1"
+  }
+}
