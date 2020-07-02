@@ -3,6 +3,8 @@ const router = express.Router();
 const { db } = require("../DB/db_config.js");
 const { createValidation, deleteValidation, updateValidation } = require("../validators/delivery.js");
 
+
+
 router.post("/addDelivery", createValidation, (req,res) => {
     db("tbl_delivery").insert({
         invoice_id: req.body.invoice_id,
