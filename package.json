@@ -16,7 +16,8 @@
     "knex": "^0.21.1",
     "moment": "^2.27.0",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "sequelize-cli": "^5.5.1"
