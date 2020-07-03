@@ -1,7 +1,13 @@
 const { body, param } = require("express-validator");
 const validate = require("./validate.js");
 const { db } = require("../DB/db_config.js");
+<<<<<<< HEAD
 var b=2;
+=======
+
+var a=1;
+
+>>>>>>> 40f8272c6727995827a87534a6414b3be6b5873c
 module.exports = {
     createValidation: [
         body("invoice_id")
