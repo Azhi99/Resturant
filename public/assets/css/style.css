@@ -1,0 +1,8 @@
+@font-face {
+    font-family: myFont;
+    src: url("../fonts/NRT-Bd.ttf");
+}
+#page-top{
+    font-family: myFont;
+    font-size: 14px;
+}
