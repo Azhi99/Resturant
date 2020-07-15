@@ -10,13 +10,15 @@ router.post("/addRole", (req, res) => {
       roles: req.body.roles,
     })
     .then((result) => {
-      res.status(201).json({
+      return res.status(200).json({
         message: "1 role Added",
         result,
       });
     })
     .catch((err) => {
-      res.status(500).send(err);
+      return res.status(500).json({
+        error:err
+      });
     });
 });
 
@@ -28,12 +30,14 @@ router.patch("/updateRole/:id", (req, res) => {
       roles: req.body.roles,
     })
     .then((result) => {
-      res.status(200).json({
+      return res.status(200).json({
         message: result + " role updated",
       });
     })
     .catch((err) => {
-      res.status(500).send(err);
+      return res.status(500).json({
+        error:err
+      });
     });
 });
 
@@ -42,11 +46,11 @@ router.delete("/deleteRole/:id", (req, res) => {
     .where("role_id", req.params.id)
     .del()
     .then((result) => {
-      res.status(200).json({
+      return res.status(200).json({
         message: result + "role deleted",
       });
     }).catch((err)=>{
-        res.status(500).send(err)
+      return res.status(500).send(err)
     })
 });
 
