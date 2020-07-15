@@ -1,6 +1,5 @@
 const { body, param } = require("express-validator");
-const { db } = require("../DB/db_config");
-const validate = require("./validate");
+const validate = require("./validate.js");
 
 module.exports = {
   createValidation: [
@@ -8,13 +7,15 @@ module.exports = {
       .isInt({ gt: 0 })
       .withMessage("Table number must be number and greater than 0"),
     body("position")
-      .isInt({ gt: 0 })
-      .withMessage("Position must be number and greater than 0"),
-      body("state")
-      .isInt({ gt: 0 })
+      .isIn(["Inside","Outside"])
+      .withMessage("Position must be Inside or Outside"),
+    body("state")
+      .isInt({ gt: 0, lt: 4 })
       .withMessage("state must be number and greater than 0"),
-      body("type")
-            .isString().withMessage("Enter a text")
+    body("type")
+      .isIn(["Normal","VIP"])
+      .withMessage("Type must be normal or VIP"),
+    validate
   ],
   deleteValidation: [
     param("id")

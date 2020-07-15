@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const { db } = require("../DB/db_config");
-const { Result } = require("express-validator");
 const {
   createValidation,
   deleteValidation,
