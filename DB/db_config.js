@@ -9,9 +9,6 @@ var db = require("knex")({
     database: process.env.DB_NAME,
   },
 });
-var b = 2;
-var c=1;
-var a=1;
 
 module.exports = {
   db,
