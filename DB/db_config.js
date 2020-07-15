@@ -10,6 +10,8 @@ var db = require("knex")({
     }
 });
 
+var a=1;
+
 module.exports = {
     db
 }
