@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard - Brand</title>
+    <link rel="stylesheet" type="text/css" href="./assets/DataTables/css/dataTables.bootstrap4.css"/>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-rtl.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body id="page-top" >
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-text mx-3"><span>Resturant</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="index.html"> <span>ســەرەکـی</span> &nbsp; <i class="fas fa-home"></i> </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="users.html"> <span>بەکارهێنەرەکان</span> &nbsp; <i class="fas fa-users"></i> </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="foods.html"><span>خـواردنـەکـان</span> &nbsp; <i class="fas fa-pizza-slice"></i>  </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="login.html"> <span>کــاشـــێــر</span> &nbsp; <i class="fas fa-cash-register"></i> </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="tables.html"> <span>مــێزەکــان</span> &nbsp; <i class="fas fa-table"></i> </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="reports.html"> <span>ڕاپـۆرتـەکـان</span> &nbsp; <i class="fas fa-chart-line"></i> </a></li>
+                    <li class="nav-item"><a class="nav-link text-right text-center" href="expense.html"> <span>مـەسـروفـات</span> &nbsp; <i class="fas fa-dollar-sign"></i> </a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline">
+                    <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+                </div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+
+            <div class="container-fluid mt-4">
+                <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-dark mb-0">خـواردنـەکـان</h3>
+                    <div>
+                        <a href="#" class="btn btn-primary"> <span> username </span> : پـڕۆفایلەکەم </a>
+                        <a href="#" class="btn btn-danger"> چوونەدەرەوە </a>
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-2">
+                    <div class="col-xl-3 col-md-4"> 
+                        <span class="btn btn-success btn-block" data-toggle="modal" data-target="#mdl_food_detail"> زیادکردنی خواردن &nbsp; <i class="fas fa-plus"></i> </span> 
+                    </div>
+                </div>
+                <hr>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped text-center text-dark">
+                        <thead>
+                            <th class="text-center" style="width: 8%;">کـۆد</th>
+                            <th class="text-center">ناوی خواردن</th>
+                            <th class="text-center"> جــۆر </th>
+                            <th class="text-center" style="width: 10%;">نـرخ</th>
+                            <th class="text-center" style="width: 15%;"> بـەکـارهـێـنەر</th>
+                            <th class="text-center" style="width: 8%;"> ڕەنــگ</th>
+                            <th class="text-center" style="width: 5%;">گۆڕانکاری</th>
+                            <th class="text-center" style="width: 5%;">سڕینەوە</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>پیتزای بچوک</td>
+                                <td>پیتزا</td>
+                                <td>3000</td>
+                                <td>Azhi Jabar</td>
+                                <td> <div style="background-color: rgb(166, 226, 106); display: block;"> &nbsp; </div> </td>
+                                <td> <span class="btn btn-primary btn-block"> <i class="fas fa-edit"></i> </span> </td>
+                                <td> <span class="btn btn-danger btn-block"> <i class="fas fa-trash"></i> </span> </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>پیتزای وەسەت</td>
+                                <td>پیتزا</td>
+                                <td>3000</td>
+                                <td>Azhi Jabar</td>
+                                <td> <div style="background-color: rgb(253, 129, 56); display: block;"> &nbsp; </div> </td>
+                                <td> <span class="btn btn-primary btn-block"> <i class="fas fa-edit"></i> </span> </td>
+                                <td> <span class="btn btn-danger btn-block"> <i class="fas fa-trash"></i> </span> </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>پیتزای گەورە</td>
+                                <td>پیتزا</td>
+                                <td>3000</td>
+                                <td>Azhi Jabar</td>
+                                <td> <div style="background-color: rgb(85, 200, 235); display: block;"> &nbsp; </div> </td>
+                                <td> <span class="btn btn-primary btn-block"> <i class="fas fa-edit"></i> </span> </td>
+                                <td> <span class="btn btn-danger btn-block"> <i class="fas fa-trash"></i> </span> </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="mdl_food_detail">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="mt-2">زانیاری بەکارهێنەر</h5>
+                        <button class="btn btn-danger rounded-circle" data-dismiss="modal"> &times; </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2"> کــۆد: </label>
+                            <input type="number"  id="" readonly class="form-control col-sm-8">
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2"> ناوی خواردن: </label>
+                            <input type="text"  id="" required class="form-control col-sm-8" placeholder=" ناوی خواردن لێرە بنوسە...">
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2"> جــۆر: </label>
+                            <select id="" class="form-control col-sm-8" required>
+                                <option value="">پیتزا</option>
+                                <option value="">لــەفــە</option>
+                            </select>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2"> نــرخ : </label>
+                            <input type="number" min="0" id="" required class="form-control col-sm-8" placeholder=" نرخی خواردن لێرە بنوسە...">
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2">وێــنـە: </label>
+                            <input type="file" id="" class="col-sm-8">
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2">  تـێـبـینی: </label>
+                            <textarea id="" class="form-control col-sm-8" rows="3"></textarea>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-3 mt-2">ڕەنــگ: </label>
+                            <input type="color" id="" class="col-sm-8 mt-1">
+                        </div>
+                        <hr>
+                        <div class="row mb-2">
+                            <div class="col-sm-4 mb-2"> <span class="btn btn-success btn-block"> زیاد کردن &nbsp; <i class="fas fa-plus"></i> </span> </div>
+                            <div class="col-sm-4 mb-2"> <span class="btn btn-warning btn-block"> گۆڕانکاری &nbsp; <i class="fas fa-edit"></i> </span> </div>
+                            <div class="col-sm-4 mb-2"> <span class="btn btn-danger btn-block">  سڕینەوە &nbsp; <i class="fas fa-trash"></i> </span> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="bg-white sticky-footer">
+        <div class="container my-auto">
+            <div class="text-center my-auto copyright"><span>Developed By:  &nbsp; Suly Tech - 0770 580 0707 </span></div>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script type="text/javascript" src="./assets/DataTables//js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="./assets/DataTables/js/dataTables.bootstrap4.js"></script>
+    <script defer src="./assets/DataTables/js/needDataTable.js"></script>
+
+    <script>
+        $("table").DataTable({
+            "dom": '<"top"fl>t<"bottom"ip><"clear">'
+        });
+    </script>
+</body>
+
+</html>
