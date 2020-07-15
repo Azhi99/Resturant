@@ -4,10 +4,6 @@ const { db } = require("../DB/db_config");
 const { createValidation, deleteValidation, updateValidation } = require("../validators/foods.js");
 const router = express.Router();
 
-router.post('/', function(req,res){
-    db("tbl_foods").select(["food_name"]);
-});
-
 router.post("/addFood", createValidation, (req,res)=>{
     // Upload image before insert 
     db("tbl_foods").insert({

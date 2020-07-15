@@ -7,7 +7,7 @@ const {
   updateValidation,
 } = require("../validators/tables");
 
-router.post("/addTable", (req, res) => {
+router.post("/addTable", createValidation, (req, res) => {
   db("tbl_tables")
     .insert({
       table_id: req.body.table_id,
@@ -29,7 +29,7 @@ router.post("/addTable", (req, res) => {
     });
 });
 
-router.patch("/updateTable/:id", (req, res) => {
+router.patch("/updateTable/:id", updateValidation, (req, res) => {
   db("tbl_tables")
     .where("table_id", req.params.id)
     .update({
@@ -44,22 +44,11 @@ router.patch("/updateTable/:id", (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).send();
+      return res.status(500).send();
     });
 });
 
-router.delete("/deleteTable/:id", async (req, res) => {
-  // try {
-  //   const delTable = await db("tbl_tables")
-  //     .where("table_id", req.params.id)
-  //     .del();
-  //     if(!delTable){
-  //       res.status(404).send('user not found')
-  //     }
-  //   res.status(200).send();
-  // } catch (err) {
-  //   res.status(400).send(err);
-  // }
+router.delete("/deleteTable/:id", deleteValidation, (req, res) => {
   db("tbl_tables")
     .where("table_id",req.params.id)
     .del()
@@ -69,7 +58,7 @@ router.delete("/deleteTable/:id", async (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).send({ error: err });
+      return res.status(500).send({ error: err });
     });
 });
 
