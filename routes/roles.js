@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const { createValidation, updateValidation, deleteValidation } = require("../validators/roles.js");
 const { db } = require("../DB/db_config");
 
-router.post("/addRole", (req, res) => {
+router.post("/addRole", createValidation, (req, res) => {
   db("tbl_roles")
     .insert({
       role_id: req.body.role_id,
@@ -22,7 +23,7 @@ router.post("/addRole", (req, res) => {
     });
 });
 
-router.patch("/updateRole/:id", (req, res) => {
+router.patch("/updateRole/:id", updateValidation, (req, res) => {
   db("tbl_roles")
     .where("role_id", req.params.id)
     .update({
@@ -41,7 +42,7 @@ router.patch("/updateRole/:id", (req, res) => {
     });
 });
 
-router.delete("/deleteRole/:id", (req, res) => {
+router.delete("/deleteRole/:id", deleteValidation, (req, res) => {
   db("tbl_roles")
     .where("role_id", req.params.id)
     .del()
