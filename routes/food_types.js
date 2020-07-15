@@ -32,11 +32,7 @@ router.post("/addFoodType", createValidation, (req, res) => {
 });
 
 // data is the number of updates rows
-router.patch(
-  "/updateFoodType/:id",
-  updateValidation,
-  createValidation,
-  (req, res) => {
+router.patch( "/updateFoodType/:id", updateValidation, createValidation, (req, res) => {
     db("tbl_food_types")
       .where("type_id", req.params.id)
       .update({
