@@ -1,5 +1,4 @@
 const express = require("express");
-const { route } = require("./user");
 const { db } = require("../DB/db_config");
 const { createValidation, deleteValidation, updateValidation } = require("../validators/foods.js");
 const router = express.Router();
