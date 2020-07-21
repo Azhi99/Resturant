@@ -13,7 +13,6 @@ const tablesRouter = require("./routes/tables.js");
 const rolesRouter = require("./routes/roles");
 const invoiceRouter=require('./routes/invoice');
 const indexRouter = require("./routes/indexPage");
-const { use } = require("./routes/user.js");
 const app = express();
 
 const port = process.env.PORT || 5000;
