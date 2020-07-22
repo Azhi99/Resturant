@@ -13,16 +13,16 @@ router.post("/addFoodType", createValidation, (req, res) => {
     .insert({
       type_name: req.body.type_name,
     })
-    .then((data) => {
+    .then(([data]) => {
       return res.json({
         message: "1 Type Added",
-        data,
+        type_id: data,
       });
     })
     .catch((err) => {
       if (err.errno === 1062) {
         return res.status(500).json({
-          message: "This type is already exist",
+          message: "ئەم جۆرە داخڵ کراوە",
         });
       }
       return res.status(500).json({
@@ -41,6 +41,16 @@ router.patch( "/updateFoodType/:id", updateValidation, createValidation, (req, r
       .then((data) => {
         return res.json({
           message: data + " Type Updated",
+        });
+      })
+      .catch((err) => {
+        if (err.errno === 1062) {
+          return res.status(500).json({
+            message: "ئەم جۆرە داخڵ کراوە",
+          });
+        }
+        return res.status(500).json({
+          message: err,
         });
       });
   }

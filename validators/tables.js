@@ -10,7 +10,7 @@ module.exports = {
       .isIn(["Inside","Outside"])
       .withMessage("Position must be Inside or Outside"),
     body("state")
-      .isInt({ gt: 0, lt: 4 })
+      .isInt({ gt: -1, lt: 4 })
       .withMessage("state must be number and greater than 0"),
     body("type")
       .isIn(["Normal","VIP"])

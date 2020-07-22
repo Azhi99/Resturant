@@ -10,16 +10,15 @@ const {
 router.post("/addTable", createValidation, (req, res) => {
   db("tbl_tables")
     .insert({
-      table_id: req.body.table_id,
       table_num: req.body.table_num,
       position: req.body.position,
       state: req.body.state,
       type: req.body.type,
     })
-    .then((data) => {
+    .then(([data]) => {
       return res.json({
         message: "1 Table Added",
-        data,
+        table_id: data,
       });
     })
     .catch((err) => {
