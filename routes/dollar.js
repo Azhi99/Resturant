@@ -8,19 +8,11 @@ const validate = require("../validators/validate.js");
 router.patch("/updateDollar",[
     body("dollar")
         .isNumeric({ gt: -1 }).withMessage("Dollar must be number"),
-    body("last_update")
-        .custom((value) => {
-            var date = moment(value);
-            if(date.isValid()){
-                return Promise.resolve(true);
-            }
-            return Promise.reject(new Error("Enter correct date"));
-        }),
     validate
 ], (req, res) => {
     db("tbl_dollar").where("dollar_id", 1).update({
-        dollar: req.body.dollar,
-        last_update: req.body.last_update
+        dinar: req.body.dollar,
+        last_update: db.fn.now()
     }).then(() => {
         return res.json({
             message: "Dollar value successfully updated"
