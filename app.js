@@ -33,7 +33,6 @@ app.use("/roles", rolesRouter);
 app.use('/invoice',invoiceRouter);
 app.use('/index',indexRouter);
 
-
 app.listen(port, () => {
   console.log(`Server started at port ${port}`);
 });
