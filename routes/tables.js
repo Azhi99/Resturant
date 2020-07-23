@@ -43,7 +43,9 @@ router.patch("/updateTable/:id", updateValidation, (req, res) => {
       });
     })
     .catch((err) => {
-      return res.status(500).send();
+      return res.status(500).send({
+        message: err
+      });
     });
 });
 
@@ -57,7 +59,7 @@ router.delete("/deleteTable/:id", deleteValidation, (req, res) => {
       });
     })
     .catch((err) => {
-      return res.status(500).send({ error: err });
+      return res.status(500).send({ message: err });
     });
 });
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../DB/db_config");
+const { db } = require("../DB/db_config.js");
 
 router.post("/addInvoice", (req, res) => {
   db("tbl_invoice")
@@ -17,13 +17,13 @@ router.post("/addInvoice", (req, res) => {
       invoice_date: req.body.invoice_date,
     })
     .then((result) => {
-      res.status(201).json({
-        message: result + "invoice created",
+      return res.status(200).json({
+        message: result + " invoice created",
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        error: err,
+      return res.status(500).json({
+        message: err,
       });
     });
 });
@@ -43,13 +43,13 @@ router.patch("/updateInvoice/:id", (req, res) => {
       invoice_date: req.body.invoice_date,
     })
     .then((result) => {
-      res.status(200).json({
-        message: result + "invoice updated",
+      return res.status(200).json({
+        message: result + " invoice updated",
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        error: err,
+      return res.status(500).json({
+        message: err,
       });
     });
 });
@@ -59,13 +59,13 @@ router.delete("/deleteInvoice/:id", (req, res) => {
     .where("invoice_id", req.params.id)
     .del()
     .then((result) => {
-      res.status(200).json({
-        message: result + "invoice deleted",
+      return res.status(200).json({
+        message: result + " invoice deleted",
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        error: err,
+      return res.status(500).json({
+        message: err,
       });
     });
 });

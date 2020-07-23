@@ -18,9 +18,9 @@ router.post("/addUser",createValidation, (req, res) => {
             phone: req.body.phone
             // Image Upload  
         }).then((data)=>{
-            res.json({ message: "1 User Added", user: data });
+            return res.json({ message: "1 User Added", user: data });
         }).catch((err)=>{
-            res.json({ message: err });
+            return res.json({ message: err });
         });
     });
     
@@ -29,9 +29,9 @@ router.post("/addUser",createValidation, (req, res) => {
 
 router.delete("/deleteUser/:id", (req,res)=>{
     db("tbl_users").where("user_id", req.params.id).del().then(()=>{
-        res.json({message: "1 User Deleted"});
+        return res.json({message: "1 User Deleted"});
     }).catch((err)=>{
-        res.json({message: err});
+        return res.json({message: err});
     });
 });
 

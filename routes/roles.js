@@ -18,7 +18,7 @@ router.post("/addRole", createValidation, (req, res) => {
     })
     .catch((err) => {
       return res.status(500).json({
-        error:err
+        message: err
       });
     });
 });
@@ -37,7 +37,7 @@ router.patch("/updateRole/:id", updateValidation, (req, res) => {
     })
     .catch((err) => {
       return res.status(500).json({
-        error:err
+        message: err
       });
     });
 });
@@ -51,7 +51,9 @@ router.delete("/deleteRole/:id", deleteValidation, (req, res) => {
         message: result + "role deleted",
       });
     }).catch((err)=>{
-      return res.status(500).send(err)
+      return res.status(500).send({
+        message: err
+      })
     })
 });
 
