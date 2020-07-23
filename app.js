@@ -10,9 +10,9 @@ const expenseRouter = require("./routes/expense.js");
 const deliveryRouter = require("./routes/delivery.js");
 const dollarRouter = require("./routes/dollar.js");
 const tablesRouter = require("./routes/tables.js");
-const rolesRouter = require("./routes/roles");
-const invoiceRouter=require('./routes/invoice');
-const indexRouter = require("./routes/indexPage");
+const rolesRouter = require("./routes/roles.js");
+const invoiceRouter=require('./routes/invoice.js');
+const indexRouter = require("./routes/indexPage.js");
 const app = express();
 
 const port = process.env.PORT || 5000;
