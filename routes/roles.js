@@ -6,7 +6,6 @@ const { db } = require("../DB/db_config");
 router.post("/addRole", createValidation, (req, res) => {
   db("tbl_roles")
     .insert({
-      role_id: req.body.role_id,
       user_id: req.body.user_id,
       roles: req.body.roles,
     })

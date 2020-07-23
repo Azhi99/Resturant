@@ -1,26 +1,100 @@
 const express = require("express");
-const router = express.Router();
 const bcrypt = require("bcrypt");
+const fileUpload = require("express-fileupload");
+const fs = require("fs");
+
+const router = express.Router();
 
 const { db } = require("../DB/db_config.js");
 const { createValidation } = require("../validators/user.js");
 
-router.post("/addUser",createValidation, (req, res) => {
+router.use(fileUpload());
+
+router.post("/getData", (req, res) => {
+    db("tbl_users").select(["user_id","username","full_name","role","status","reg_date","phone","image"]).then((data) => {
+        return res.status(200).send(data);
+    });
+});
+
+router.post("/getUserImage/:id", async (req,res) => {
+    const [{image}] = await db("tbl_users").where("user_id", req.params.id).select(["image"]).limit(1);
+    return res.status(200).json({
+        image_path: image
+    });
+});
+
+router.post("/getUserRoles/:id", async (req,res) => {
+    const [{roles}] = await db("tbl_roles").where("user_id", req.params.id).select(["roles"]).limit(1);
+    return res.status(200).json({
+        roles
+    });
+});
+
+
+/* 
+    First check if user have image or not 
+    If have image then check image is validate or not, if image is validate then change the name and giving the 
+    access path to a variable by access folder and image name 
+    If don't have image then a variable is null 
+    This variable that refer to image path is inserting to the database (null or have a path)
+    After inserting user to the database, then check this path have or not 
+    If path is not null then upload the image to user_images folder
+    If during upload an error occured then deleted the inserted user and say error
+    If the image uploaded successfully then say 1 user added
+*/ 
+router.post("/addUser", createValidation, (req, res) => {
     var password = req.body.password;
     bcrypt.hash(password, 10, (err, hash)=>{
+        var image_path = null;
+        if(req.files && req.files.user_image != null){
+            var image_name = req.files.user_image.name;
+            const ext = image_name.substring( image_name.lastIndexOf('.') + 1 );
+            if(["jpg","png"].includes(ext.toLowerCase())){
+                req.files.user_image.name = new Date().getTime() + "." + ext;
+                image_name = req.files.user_image.name;
+                image_path = "./user_images/"+image_name;
+            } else {
+                return res.status(500).json({
+                    message: "جۆری فایلی هەڵبژێردراو هەڵەیە"
+                });
+            }
+        } 
         db("tbl_users").insert({
             username: req.body.username,
             password: hash,
             full_name: req.body.full_name,
             role: req.body.role,
-            status: req.body.status,
-            reg_date: req.body.reg_date,
-            phone: req.body.phone
-            // Image Upload  
-        }).then((data)=>{
-            return res.json({ message: "1 User Added", user: data });
+            status: "1",
+            reg_date: db.fn.now(),
+            phone: req.body.phone,
+            image: image_path
+        }).then(([data])=>{ 
+            if(image_name != null){
+                req.files.user_image.mv("./public/user_images/" + req.files.user_image.name, async function(err){
+                    if(err){
+                        const deleted = await db("tbl_users").where("user_id", data).del();
+                        if(deleted){
+                            return res.status(500).json({
+                                message: err
+                            });
+                        }
+                    } else {
+                        return res.status(200).json({
+                            message: "1 User Added",
+                            user_id: data
+                        });
+                    } 
+                });
+            }
+            return res.status(200).json({
+                message: "1 User Added",
+                user_id: data
+            });
+            
         }).catch((err)=>{
-            return res.json({ message: err });
+            return res.status(500).json({ 
+                message: err 
+            });
         });
     });
     
@@ -28,10 +102,18 @@ router.post("/addUser",createValidation, (req, res) => {
 
 
 router.delete("/deleteUser/:id", (req,res)=>{
-    db("tbl_users").where("user_id", req.params.id).del().then(()=>{
-        return res.json({message: "1 User Deleted"});
-    }).catch((err)=>{
-        return res.json({message: err});
+    db("tbl_users").where("user_id", req.params.id).select(["image"]).limit(1).then(([data])=>{
+        const image = data.image;
+        if(image){
+            fs.unlinkSync("./public"+image.slice(1));
+        }
+        db("tbl_roles").where("user_id", req.params.id).del().then(()=>{
+            db("tbl_users").where("user_id", req.params.id).del().then(()=>{
+                return res.json({message: "1 User Deleted"});
+            }).catch((err)=>{
+                return res.json({message: err});
+            });
+        });
     });
 });
 

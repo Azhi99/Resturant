@@ -10,9 +10,8 @@ module.exports = {
             .isLength({ min:6, max: 20}).withMessage("Invalid length"),
         body("role")
             .isIn(["Admin","User"]).withMessage("Invalid User role"),
-        body("status")
-            .isIn([0,1]).withMessage("Invalid status"),
-        body("phone").isLength({ min: 0, max: 15 }),
+        body("phone")
+            .isLength({ min: 0, max: 15 }),
         validate
     ]
 };
