@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body } = require("express-validator");
 const validate = require("./validate.js");
 module.exports = {
     createValidation:[
@@ -9,19 +9,9 @@ module.exports = {
             .isString().withMessage("Enter a string")
             .isLength({ min:6, max: 20}).withMessage("Invalid length"),
         body("role")
-            .custom(function(value){
-                if(value=="Admin" || value=="User"){
-                    return Promise.resolve(true);
-                }
-                return Promise.reject(new Error("Invalid User role"));
-            }),
+            .isIn(["Admin","User"]).withMessage("Invalid User role"),
         body("status")
-            .custom(function(value){
-                if(value=="1" || value=="0"){
-                    return Promise.resolve(true);
-                }
-                return Promise.reject(new Error("Invalid User status"));
-            }),
+            .isIn([0,1]).withMessage("Invalid status"),
         body("phone").isLength({ min: 0, max: 15 }),
         validate
     ]
