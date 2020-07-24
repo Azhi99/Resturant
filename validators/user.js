@@ -21,5 +21,11 @@ module.exports = {
         param("id")
             .isInt({gt: 0}).withMessage("ID must be number and grted than 0"),
         validate
+    ],
+    checkPassword:[
+        body("password")
+            .isString().withMessage("Enter a string")
+            .isLength({ min:6, max: 20}).withMessage("Invalid length"),
+        validate
     ]
 };

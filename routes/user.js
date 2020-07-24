@@ -6,13 +6,12 @@ const fs = require("fs");
 const router = express.Router();
 
 const { db } = require("../DB/db_config.js");
-const { createValidation, checkID } = require("../validators/user.js");
-const { check } = require("express-validator");
+const { createValidation, checkID, checkPassword } = require("../validators/user.js");
 
 router.use(fileUpload());
 
 router.post("/getData", (req, res) => {
-    db("tbl_users").select(["user_id","username","full_name","role","status","reg_date","phone","image"]).then((data) => {
+    db("tbl_users").select(["user_id","username","full_name","role","status","reg_date","phone","image as image_path"]).then((data) => {
         return res.status(200).send(data);
     });
 });
@@ -100,7 +99,23 @@ router.patch("/updateUser/:id", (req,res) => {
     
 });
 
-router.patch("/updatePassword/:id", (req,res) => {
+router.patch("/updatePassword/:id", checkID, checkPassword, (req,res) => {
+    bcrypt.hash(req.body.password, 10, (err, hash)=>{
+        db("tbl_users").where("user_id", req.params.id).update({
+            password: hash
+        }).then(()=>{
+            return res.status(200).json({
+                message: "Password Updated"
+            });
+        }).catch((err) => {
+            return res.status(500).json({
+                message: err
+            });
+        });
+    });
+});
+
+router.patch("/updateImage/:id", (req,res) => {
 
 });
 
@@ -151,17 +166,40 @@ router.delete("/deleteUser/:id", checkID, async (req,res)=>{
     db("tbl_users").where("user_id", req.params.id).select(["image"]).limit(1).then(([data])=>{
         const image = data.image;
         if(image){
-            fs.unlinkSync("./public"+image.slice(1));
+            fs.unlinkSync("./public" + image.slice(1));
         }
         db("tbl_roles").where("user_id", req.params.id).del().then(()=>{
             db("tbl_users").where("user_id", req.params.id).del().then(()=>{
                 return res.status(200).json({message: "1 User Deleted"});
             }).catch((err)=>{
+                if(err.errno === 1451){
+                    return res.status(500).json({message: "ناتوانیت ئەم بەکارهێنەرە بسڕیتەوە لەبەرئەوەی لە بەشەکانی تردا بەکارهاتووە"});
+                }
                 return res.status(500).json({message: err});
             });
         });
     });
+});
 
+router.delete("/deleteImage/:id", checkID, async (req, res) => {
+    const [{image_path}] = await db("tbl_users").where("user_id", req.params.id).select(["image as image_path"]).limit(1);
+    if(!image_path){
+        return res.status(500).json({
+            message: "ئەم بەکارهێنەرە وێنەی نییە"
+        });
+    }
+    fs.unlinkSync("./public/" + image_path.slice(1));
+    db("tbl_users").where("user_id", req.params.id).update({
+        image: null
+    }).then(() => {
+        return res.status(200).json({
+            message: "Image deleted"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
 });
 
 module.exports = router;
