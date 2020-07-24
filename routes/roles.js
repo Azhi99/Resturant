@@ -24,7 +24,7 @@ router.post("/addRole", createValidation, (req, res) => {
 
 router.patch("/updateRole/:id", updateValidation, (req, res) => {
   db("tbl_roles")
-    .where("role_id", req.params.id)
+    .where("user_id", req.params.id)
     .update({
       user_id: req.body.user_id,
       roles: req.body.roles,
@@ -43,7 +43,7 @@ router.patch("/updateRole/:id", updateValidation, (req, res) => {
 
 router.delete("/deleteRole/:id", deleteValidation, (req, res) => {
   db("tbl_roles")
-    .where("role_id", req.params.id)
+    .where("user_id", req.params.id)
     .del()
     .then((result) => {
       return res.status(200).json({

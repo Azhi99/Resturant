@@ -15,7 +15,14 @@ module.exports = {
         validate
     ],
     updateValidation:[
-
+        body("username")
+            .isString().withMessage("Enter a string")
+            .isLength({ min:1, max: 50}).withMessage("Invalid length"),
+        body("role")
+            .isIn(["Admin","User"]).withMessage("Invalid User role"),
+        body("phone")
+            .isLength({ min: 0, max: 15 }),
+        validate
     ],
     checkID:[
         param("id")

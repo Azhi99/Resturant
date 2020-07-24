@@ -6,7 +6,7 @@ const fs = require("fs");
 const router = express.Router();
 
 const { db } = require("../DB/db_config.js");
-const { createValidation, checkID, checkPassword } = require("../validators/user.js");
+const { createValidation, updateValidation, checkID, checkPassword } = require("../validators/user.js");
 
 router.use(fileUpload());
 
@@ -95,8 +95,21 @@ router.post("/addUser", createValidation, (req, res) => {
     
 });
 
-router.patch("/updateUser/:id", (req,res) => {
-    
+router.patch("/updateUser/:id", checkID, updateValidation, (req,res) => {
+    db("tbl_users").where("user_id", req.params.id).update({
+        username: req.body.username,
+        full_name: req.body.full_name,
+        role: req.body.role,
+        phone: req.body.phone
+    }).then(() => {
+        return res.status(200).json({
+            message: "User Successfully Updated"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
 });
 
 router.patch("/updatePassword/:id", checkID, checkPassword, (req,res) => {
