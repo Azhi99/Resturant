@@ -6,7 +6,8 @@ const fs = require("fs");
 const router = express.Router();
 
 const { db } = require("../DB/db_config.js");
-const { createValidation } = require("../validators/user.js");
+const { createValidation, checkID } = require("../validators/user.js");
+const { check } = require("express-validator");
 
 router.use(fileUpload());
 
@@ -78,12 +79,7 @@ router.post("/addUser", createValidation, (req, res) => {
                                 message: err
                             });
                         }
-                    } else {
-                        return res.status(200).json({
-                            message: "1 User Added",
-                            user_id: data
-                        });
-                    } 
+                    }
                 });
             }
             return res.status(200).json({
@@ -100,8 +96,58 @@ router.post("/addUser", createValidation, (req, res) => {
     
 });
 
+router.patch("/updateUser/:id", (req,res) => {
+    
+});
 
-router.delete("/deleteUser/:id", (req,res)=>{
+router.patch("/updatePassword/:id", (req,res) => {
+
+});
+
+router.patch("/disableUser/:id", checkID, async (req,res) => {
+    const [{noOfActivedAdmin}] = await db("tbl_users").where("role","Admin").count("user_id as noOfActivedAdmin");
+    const [{userType}] = await db("tbl_users").where("user_id", req.params.id).select(["role as userType"]).limit(1);
+    if(noOfActivedAdmin == 1 && userType == "Admin"){
+        return res.status(500).json({
+            message: "ناتوانیت ئەم بەکارهێنەرە قفڵ بکەیت"
+        });
+    } 
+    db("tbl_users").where("user_id", req.params.id).update({
+        status: "0"
+    }).then(()=>{
+        return res.status(200).json({
+            message: "Account Disabled"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
+    
+});
+
+router.patch("/activeUser/:id", checkID, (req,res) => {
+    db("tbl_users").where("user_id", req.params.id).update({
+        status: "1"
+    }).then(()=>{
+        return res.status(200).json({
+            message: "Account Disabled"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
+});
+
+router.delete("/deleteUser/:id", checkID, async (req,res)=>{
+    const [{noOfAdmins}] = await db("tbl_users").where("role","Admin").count("user_id as noOfAdmins");
+    const [{userType}] = await db("tbl_users").where("user_id", req.params.id).select(["role as userType"]).limit(1);
+    if(noOfAdmins == 1 && userType == "Admin"){
+        return res.status(500).json({
+            message: "ناتوانیت ئەم بەکارهێنەرە بسڕیتەوە"
+        });
+    }
     db("tbl_users").where("user_id", req.params.id).select(["image"]).limit(1).then(([data])=>{
         const image = data.image;
         if(image){
@@ -109,12 +155,13 @@ router.delete("/deleteUser/:id", (req,res)=>{
         }
         db("tbl_roles").where("user_id", req.params.id).del().then(()=>{
             db("tbl_users").where("user_id", req.params.id).del().then(()=>{
-                return res.json({message: "1 User Deleted"});
+                return res.status(200).json({message: "1 User Deleted"});
             }).catch((err)=>{
-                return res.json({message: err});
+                return res.status(500).json({message: err});
             });
         });
     });
+
 });
 
 module.exports = router;
