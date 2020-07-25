@@ -128,12 +128,56 @@ router.patch("/updatePassword/:id", checkID, checkPassword, (req,res) => {
     });
 });
 
-router.patch("/updateImage/:id", (req,res) => {
-
+/*
+    First of all check have image or not, if have image then check the image is valid or not
+    If the image is valid then change the name 
+    Upload the image, if don't have error during upload then select image from database to the specific user by id 
+    If the user have image, delete image
+    Finally update the image in database
+*/
+router.patch("/updateImage/:id", checkID, (req,res) => {
+    if(!req.files || !req.files.user_image){
+        return res.status(500).json({
+            message: "هیچ وێنەیەک هەڵنەبژێردراوە"
+        });
+    }
+    let user_image = req.files.user_image;
+    let image_name = user_image.name;
+    const ext  = image_name.substring( image_name.lastIndexOf('.') + 1 );
+    if( !["jpg","png"].includes( ext.toLowerCase() ) ){
+        return res.status(500).json({
+            message: "جۆری ڕەسمەکە هەڵەیە"
+        });
+    }
+    user_image.name = new Date().getTime() + "." + ext;
+    image_name = user_image.name;
+    user_image.mv("./public/user_images/" + user_image.name, async (err) => {
+        if(err){
+            return res.status(500).json({
+                message: err
+            });
+        }
+        const [{image_path}] = await db("tbl_users").where("user_id", req.params.id).select(["image as image_path"]).limit(1);
+        if(image_path){
+            fs.unlinkSync("./public" + image_path.slice(1));
+        }
+        db("tbl_users").where("user_id", req.params.id).update({
+            image: "./user_images/" + user_image.name
+        }).then(()=>{
+            return res.status(200).json({
+                message: "Image Successfully Updated",
+                image_path: "./user_images/" + user_image.name
+            });
+        }).catch((err) => {
+            return res.status(500).json({
+                message: err
+            });
+        });
+    });
 });
 
 router.patch("/disableUser/:id", checkID, async (req,res) => {
-    const [{noOfActivedAdmin}] = await db("tbl_users").where("role","Admin").count("user_id as noOfActivedAdmin");
+    const [{noOfActivedAdmin}] = await db("tbl_users").where("role","Admin").andWhere("status", 1).count("user_id as noOfActivedAdmin");
     const [{userType}] = await db("tbl_users").where("user_id", req.params.id).select(["role as userType"]).limit(1);
     if(noOfActivedAdmin == 1 && userType == "Admin"){
         return res.status(500).json({
