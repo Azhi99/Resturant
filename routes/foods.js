@@ -1,5 +1,6 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
+const fs = require("fs");
 const { db } = require("../DB/db_config");
 const { createValidation, deleteValidation, updateValidation } = require("../validators/foods.js");
 const router = express.Router();
@@ -106,12 +107,79 @@ router.patch("/updateFood/:id", updateValidation, (req,res) => {
     });
 });
 
+router.patch("/updateImage/:id", deleteValidation, (req,res) => {
+    if(!req.files || req.files.food_image == null){
+        return res.status(500).json({
+            message: "هیچ ڕەسمێک هەڵنەبژێردراوە"
+        });
+    }
+    let food_image = req.files.food_image;
+    let image_name = food_image.name;
+    const ext = image_name.substring( image_name.lastIndexOf('.') + 1 );
+    if(!["jpg", "png", "jpeg"].includes(ext.toLowerCase())){
+        return res.status(500).json({
+            message: "جؤری فایلی هەڵبژێردراو هەڵەیە"
+        });
+    }
+    food_image.name = new Date().getTime() + "." + ext;
+    image_name = food_image.name;
+    food_image.mv("./public/food_images/" + image_name, async (err) => {
+        if(err){
+            return res.status(500).json({
+                message: err
+            });
+        }
+        const [{image_path}] = await db("tbl_foods").where("food_id", req.params.id).select(["image as image_path"]).limit(1);
+        if(image_path){
+            fs.unlinkSync("./public" + image_path.slice(1));
+        }
+        db("tbl_foods").where("food_id", req.params.id).update({
+            image: "./food_images/" + image_name
+        }).then(()=>{
+            return res.status(200).json({
+                image_path: "./food_images/" + image_name
+            });
+        }).catch((err) => {
+            return res.status(500).json({
+                message: err
+            });
+        });
+    });
+});
+
+
+
 // data is the number of deleted rows
-router.delete("/deleteFood/:id", deleteValidation, (req,res) => {
-    // Remove image before delete
+router.delete("/deleteFood/:id", deleteValidation, async (req,res) => {
+    const [{image_path}] = await db("tbl_foods").where("food_id", req.params.id).select(["image as image_path"]).limit(1);
+    if(image_path){
+        fs.unlinkSync("./public" + image_path.slice(1));
+    }
     db("tbl_foods").where("food_id", req.params.id).del().then((data) => {
         return res.json({
             message: data + " Food deleted"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
+});
+
+router.delete("/deleteImage/:id", deleteValidation, async (req,res) => {
+    const [{image_path}] = await db("tbl_foods").where("food_id", req.params.id).select(["image as image_path"]).limit(1);
+    if(image_path){
+        fs.unlinkSync("./public" + image_path.slice(1));
+    }
+    db("tbl_foods").where("food_id", req.params.id).update({
+        image: null
+    }).then(() => {
+        return res.json({
+            message: "Image Successfully Deleted"
+        });
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
         });
     });
 });

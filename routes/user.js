@@ -145,7 +145,7 @@ router.patch("/updateImage/:id", checkID, (req,res) => {
     let user_image = req.files.user_image;
     let image_name = user_image.name;
     const ext  = image_name.substring( image_name.lastIndexOf('.') + 1 );
-    if( !["jpg","png"].includes( ext.toLowerCase() ) ){
+    if( !["jpg","png", "jpeg"].includes( ext.toLowerCase() ) ){
         return res.status(500).json({
             message: "جۆری ڕەسمەکە هەڵەیە"
         });
