@@ -97,7 +97,7 @@ router.patch("/updateFood/:id", updateValidation, (req,res) => {
     }).catch((err) => {
         if(err.errno === 1062){
             return res.status(500).json({
-                message: "This food already exist"
+                message: "ئەم خواردنە پێشتر داخڵ کراوە"
             });
         }
         return res.status(500).json({
