@@ -8,6 +8,16 @@ const {
   updateValidation,
 } = require("../validators/food_types.js");
 
+router.post("/getData", (req, res) => {
+  db("tbl_food_types").select().orderBy("type_id").then((data) => {
+    return res.status(200).send(data);
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err
+    });
+  })
+});
+
 router.post("/addFoodType", createValidation, (req, res) => {
   db("tbl_food_types")
     .insert({

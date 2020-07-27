@@ -49,7 +49,7 @@ router.post("/addUser", createValidation, (req, res) => {
         if(req.files && req.files.user_image != null){
             var image_name = req.files.user_image.name;
             const ext = image_name.substring( image_name.lastIndexOf('.') + 1 );
-            if(["jpg","png"].includes(ext.toLowerCase())){
+            if(["jpg", "png", "jpeg"].includes(ext.toLowerCase())){
                 req.files.user_image.name = new Date().getTime() + "." + ext;
                 image_name = req.files.user_image.name;
                 image_path = "./user_images/"+image_name;
@@ -69,7 +69,7 @@ router.post("/addUser", createValidation, (req, res) => {
             phone: req.body.phone,
             image: image_path
         }).then(([data])=>{ 
-            if(image_name != null){
+            if(image_path != null){
                 req.files.user_image.mv("./public/user_images/" + req.files.user_image.name, async function(err){
                     if(err){
                         const deleted = await db("tbl_users").where("user_id", data).del();
@@ -83,7 +83,8 @@ router.post("/addUser", createValidation, (req, res) => {
             }
             return res.status(200).json({
                 message: "1 User Added",
-                user_id: data
+                user_id: data,
+                image_path
             });
             
         }).catch((err)=>{
