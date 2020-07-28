@@ -1,5 +1,4 @@
 const { body, param } = require("express-validator");
-const moment = require("moment");
 const validate = require("./validate.js");
 const { db } = require("../DB/db_config.js");
 
@@ -8,14 +7,6 @@ module.exports = {
         body("expense_type")
             .isString().withMessage("Enter a text")
             .isLength({ min: 0 }).withMessage("Invalid length"),
-        body("expense_date")
-            .custom((value) => {
-                var date = moment(value);
-                if(date.isValid()){
-                    return Promise.resolve(true);
-                }
-                return Promise.reject(new Error("Enter a correct date"));
-            }),
         body("price")
             .isNumeric({ gt: -1 }).withMessage("Price must be number"),
         body("user_id")
@@ -40,14 +31,6 @@ module.exports = {
         body("expense_type")
             .isString().withMessage("Enter a text")
             .isLength({ min: 1 }).withMessage("Invalid length"),
-        body("expense_date")
-            .custom((value) => {
-                var date = moment(value);
-                if(date.isValid()){
-                    return Promise.resolve(true);
-                }
-                return Promise.reject(new Error("Enter a correct date"));
-            }),
         body("price")
             .isNumeric({ gt: -1 }).withMessage("Price must be number"),
         validate
