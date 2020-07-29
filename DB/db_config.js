@@ -11,5 +11,5 @@ var db = require("knex")({
 });
 
 module.exports = {
-  db,
+  db
 };

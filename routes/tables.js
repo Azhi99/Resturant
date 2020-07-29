@@ -1,18 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../DB/db_config");
+const { db } = require("../DB/db_config.js");
 const {
   createValidation,
   deleteValidation,
   updateValidation,
+  checkNum
 } = require("../validators/tables");
+
+router.post("/getData", (req, res) => {
+  db("tbl_tables").select(["table_num", "position", "state", "type"]).then((data) => {
+    return res.status(200).send(data);
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err
+    });
+  });
+});
 
 router.post("/addTable", createValidation, (req, res) => {
   db("tbl_tables")
     .insert({
       table_num: req.body.table_num,
       position: req.body.position,
-      state: req.body.state,
+      state: "0",
       type: req.body.type,
     })
     .then(([data]) => {
@@ -51,7 +62,7 @@ router.patch("/updateTable/:id", updateValidation, (req, res) => {
 
 router.delete("/deleteTable/:id", deleteValidation, (req, res) => {
   db("tbl_tables")
-    .where("table_id",req.params.id)
+    .where("table_id", req.params.id)
     .del()
     .then((result) => {
       return res.json({
@@ -61,6 +72,36 @@ router.delete("/deleteTable/:id", deleteValidation, (req, res) => {
     .catch((err) => {
       return res.status(500).send({ message: err });
     });
+});
+
+router.patch("/preOrder/:num", checkNum, (req, res) => {
+  db("tbl_tables").where("table_num", req.params.num).update({
+    state: "1"
+  }).then(() => {
+    return res.status(200).json({
+      message: "Success"
+    });
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err
+    });
+    
+  });
+});
+
+router.patch("/setNull/:num", checkNum, (req, res) => {
+  db("tbl_tables").where("table_num", req.params.num).update({
+    state: "0"
+  }).then(() => {
+    return res.status(200).json({
+      message: "Success"
+    });
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err
+    });
+    
+  });
 });
 
 module.exports = router;
