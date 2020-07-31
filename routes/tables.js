@@ -8,7 +8,7 @@ const {
   checkNum
 } = require("../validators/tables");
 
-router.post("/getData", (req, res) => {
+router.post("/getData", function(req, res) {
   db("tbl_tables").select(["table_num", "position", "state", "type"]).then((data) => {
     return res.status(200).send(data);
   }).catch((err) => {
@@ -77,11 +77,13 @@ router.delete("/deleteTable/:id", deleteValidation, (req, res) => {
 router.patch("/preOrder/:num", checkNum, (req, res) => {
   db("tbl_tables").where("table_num", req.params.num).update({
     state: "1"
-  }).then(() => {
+  }).then(function() {
+    req.app.io.emit("preOrdered", req.params.num);
     return res.status(200).json({
       message: "Success"
     });
   }).catch((err) => {
+    console.log(err);
     return res.status(500).json({
       message: err
     });
@@ -93,6 +95,7 @@ router.patch("/setNull/:num", checkNum, (req, res) => {
   db("tbl_tables").where("table_num", req.params.num).update({
     state: "0"
   }).then(() => {
+    req.app.io.emit("settedNull", req.params.num);
     return res.status(200).json({
       message: "Success"
     });

@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const socketio = require("socket.io");
 
-const { db } = require("./DB/db_config.js");
 const userRouter = require("./routes/user.js");
 const foodTypesRouter = require("./routes/food_types.js");
 const foodsRouter = require("./routes/foods.js");
@@ -13,9 +13,17 @@ const tablesRouter = require("./routes/tables.js");
 const rolesRouter = require("./routes/roles.js");
 const invoiceRouter=require('./routes/invoice.js');
 const indexRouter = require("./routes/indexPage.js");
+
 const app = express();
 
 const port = process.env.PORT || 5000;
+
+const server = app.listen(port, () => {
+  console.log(`Server started at port ${port}`);
+});
+
+const io = socketio(server);
+app.io = io;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,7 +40,3 @@ app.use("/tables", tablesRouter);
 app.use("/roles", rolesRouter);
 app.use('/invoice',invoiceRouter);
 app.use('/index',indexRouter);
-
-app.listen(port, () => {
-  console.log(`Server started at port ${port}`);
-});
