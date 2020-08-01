@@ -4,7 +4,29 @@ const { createValidation, deleteValidation, updateValidation } = require("../val
 
 const router = express.Router();
 
-router.post("/getData", (req, res) => {
+router.post("/getData", async (req, res) => {
+    const expenses = await db.select(
+      "tbl_expense.expense_id as expense_id",
+      "tbl_expense.expense_type as expense_type",
+      "tbl_expense.price as price",
+      "tbl_expense.note as note",
+      "tbl_expense.expense_date as expense_date",
+      "tbl_users.full_name as username"
+    )
+      .from("tbl_expense")
+      .join("tbl_users", "tbl_users.user_id", "=", "tbl_expense.user_id")
+      .orderBy("expense_date", "desc")
+      .limit(10)
+      .offset( req.body.offset || 0 );
+    
+    const [{no_of_expenses}] = await db("tbl_expense").count("* as no_of_expenses");
+    return res.status(200).json({
+        expenses,
+        no_of_expenses
+    });
+});
+
+router.post("/search", (req, res) => {
     db.select(
       "tbl_expense.expense_id as expense_id",
       "tbl_expense.expense_type as expense_type",
@@ -14,12 +36,15 @@ router.post("/getData", (req, res) => {
       "tbl_users.full_name as username"
     )
       .from("tbl_expense")
-      .join("tbl_users", "tbl_users.user_id", "=", "tbl_expense.user_id").then((data) => {
-          return res.status(200).send(data);
-      }).catch((err) => {
-          return res.status(500).json({
-              message: err
-          });
+      .join("tbl_users", "tbl_users.user_id", "=", "tbl_expense.user_id")
+      .where("tbl_expense.expense_id", "like", ('%' + req.body.search_value + '%'))
+      .orWhere("tbl_expense.expense_type", "like", ('%' + req.body.search_value + '%'))
+      .orWhere("tbl_expense.price", "like", ('%' + req.body.search_value + '%'))
+      .orWhere("tbl_expense.note", "like", ('%' + req.body.search_value + '%'))
+      .orWhere("tbl_expense.expense_date", "like", ('%' + req.body.search_value + '%'))
+      .orWhere("tbl_users.full_name", "like", ('%' + req.body.search_value + '%'))
+      .orderBy("tbl_expense.expense_date", "desc").then((data) => {
+        return res.status(200).send(data);
       });
 });
 
