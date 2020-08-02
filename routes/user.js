@@ -11,7 +11,7 @@ const { createValidation, updateValidation, checkID, checkPassword } = require("
 router.use(fileUpload());
 
 router.post("/getData", (req, res) => {
-    db("tbl_users").select(["user_id","username","full_name","role","status","reg_date","phone","image as image_path"]).then((data) => {
+    db("tbl_users").select(["user_id","username","full_name","role","status","reg_date","phone","image as image_path"]).orderBy("user_id", "desc").then((data) => {
         return res.status(200).send(data);
     });
 });

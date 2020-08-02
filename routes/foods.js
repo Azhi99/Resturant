@@ -20,7 +20,8 @@ router.post("/getData", (req, res) => {
     )
       .from("tbl_foods")
       .join("tbl_food_types", "tbl_food_types.type_id", "=", "tbl_foods.type_id")
-      .join("tbl_users", "tbl_users.user_id", "=", "tbl_foods.user_id").then((data)=>{
+      .join("tbl_users", "tbl_users.user_id", "=", "tbl_foods.user_id")
+      .orderBy("tbl_foods.food_id", "desc").then((data)=>{
         return res.status(200).send(data);
       }).catch((err) => {
         return res.status(500).json({
