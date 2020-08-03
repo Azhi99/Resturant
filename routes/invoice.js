@@ -26,7 +26,6 @@ router.post("/getNoOfInvoices", async (req, res) => {
 });
 
 router.post("/getDailyInvoice", async (req, res) => {
-  var d_now = new Date().toISOString().split("T")[0];
   const invoices = await db.select(
       "tbl_invoice.invoice_id as invoice_id",
       "tbl_invoice.type as type",
@@ -39,14 +38,35 @@ router.post("/getDailyInvoice", async (req, res) => {
     )
     .from("tbl_invoice")
     .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
-    .where("tbl_invoice.invoice_date", d_now)
+    .where("tbl_invoice.invoice_date", new Date().toISOString().split("T")[0])
     .orderBy("tbl_invoice.invoice_id", "desc");
 
-    const [{daily_sold}] = await db("tbl_invoice").where("invoice_date", d_now).sum("amount_paid as daily_sold");
-
+    const [{daily_sold}] = await db("tbl_invoice").where("invoice_date", new Date().toISOString().split("T")[0]).sum("amount_paid as daily_sold");
     return res.status(200).json({
       invoices,
       daily_sold
+    });
+});
+
+router.post("/getAllInvoice", async (req, res) => {
+  const invoices = await db.select(
+      "tbl_invoice.invoice_id as invoice_id",
+      "tbl_invoice.type as type",
+      "tbl_invoice.status as status",
+      "tbl_invoice.discount as discount",
+      "tbl_invoice.service as service",
+      "tbl_invoice.total_price as total_price",
+      "tbl_users.full_name as username",
+      "tbl_invoice.invoice_date as invoice_date"
+    )
+    .from("tbl_invoice")
+    .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
+    .orderBy("tbl_invoice.invoice_id", "desc")
+    .offset(req.body.offset)
+    .limit(25);
+
+    return res.status(200).json({
+      invoices
     });
 });
 
@@ -70,7 +90,9 @@ router.post("/getWeeklyInvoice", async (req, res) => {
     .from("tbl_invoice")
     .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
     .whereBetween("tbl_invoice.invoice_date", [d_week, d_now])
-    .orderBy("tbl_invoice.invoice_id", "desc");
+    .orderBy("tbl_invoice.invoice_id", "desc")
+    .offset(req.body.offset)
+    .limit(25);
 
     const [{weekly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_week, d_now]).sum("amount_paid as weekly_sold");
     return res.status(200).json({
@@ -99,7 +121,9 @@ router.post("/getMonthlyInvoice", async (req, res) => {
     .from("tbl_invoice")
     .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
     .whereBetween("tbl_invoice.invoice_date", [d_month, d_now])
-    .orderBy("tbl_invoice.invoice_id", "desc");
+    .orderBy("tbl_invoice.invoice_id", "desc")
+    .offset(req.body.offset)
+    .limit(25);
 
     const [{monthly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_month, d_now]).sum("amount_paid as monthly_sold");
     return res.status(200).json({
