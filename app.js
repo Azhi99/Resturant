@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const socketio = require("socket.io");
+const mysqldump = require("mysqldump");
 
 const userRouter = require("./routes/user.js");
 const foodTypesRouter = require("./routes/food_types.js");
@@ -40,3 +41,15 @@ app.use("/tables", tablesRouter);
 app.use("/roles", rolesRouter);
 app.use('/invoice',invoiceRouter);
 app.use('/index',indexRouter);
+
+app.get("/backup", (req,res) => {
+  mysqldump({
+    connection: {
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME
+    },
+    dumpToFile: "./suly_rest.sql"
+  });
+});
