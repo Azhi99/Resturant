@@ -155,6 +155,59 @@ router.post("/addInvoice", (req, res) => {
     });
 });
 
+router.post("/getInvoiceDetail/:id", async (req,res) => {
+  const [invoice_detail] = await db.select(
+    "tbl_invoice.invoice_id as invoice_id",
+    "tbl_invoice.type as type",
+    "tbl_invoice.table_num as table_num",
+    "tbl_invoice.status as status",
+    "tbl_invoice.total_price as total_price",
+    "tbl_invoice.amount_paid as amount_paid",
+    "tbl_invoice.discount as discount",
+    "tbl_invoice.service as service",
+    "tbl_users.full_name as username",
+    "tbl_invoice.invoice_date as invoice_date"
+  ).from("tbl_invoice")
+   .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
+   .where("tbl_invoice.invoice_id", req.params.id)
+   .limit(1);
+
+  const foods = await db.select(
+    "tbl_invoice_detail.id_id as id",
+    "tbl_foods.food_name as food_name",
+    "tbl_invoice_detail.qty as qty",
+    "tbl_foods.price as price",
+    db.raw("(tbl_foods.price * tbl_invoice_detail.qty) as all_price"),
+    "tbl_invoice_detail.note as note"
+  ).from("tbl_invoice_detail")
+   .join("tbl_foods", "tbl_foods.food_id", "=", "tbl_invoice_detail.food_id")
+   .where("tbl_invoice_detail.invoice_id", req.params.id);
+
+  var delivery_info = null;
+  if(invoice_detail.type == 2){
+    [delivery_info] = await db("tbl_delivery").select([
+      "delivery_id",
+      "address",
+      "phone",
+      "delivery_price"
+    ]);
+  }
+
+  if(delivery_info != null){
+    return res.status(200).json({
+      invoice_detail,
+      foods,
+      delivery_info
+    });
+  } 
+  return res.status(200).json({
+    invoice_detail,
+    foods
+  });
+  
+
+});
+
 router.patch("/updateInvoice/:id", (req, res) => {
   db("tbl_invoice")
     .where("invoice_id", req.params.id)
