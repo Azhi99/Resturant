@@ -23,7 +23,7 @@ router.post("/addTable", createValidation, (req, res) => {
     .insert({
       table_num: req.body.table_num,
       position: req.body.position,
-      state: "0",
+      state: 0,
       type: req.body.type,
     })
     .then(([data]) => {
