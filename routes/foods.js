@@ -30,6 +30,25 @@ router.post("/getData", (req, res) => {
       });
 });
 
+router.post("/getDataByType/:type_id", (req, res) => {
+    db.select(
+      "tbl_foods.food_id as food_id",
+      "tbl_foods.food_name as food_name",
+      "tbl_foods.price as price",
+      "tbl_foods.image as image_path",
+      "tbl_foods.color_value as color_value"
+    )
+      .from("tbl_foods")
+      .where("type_id", req.params.type_id)
+      .orderBy("tbl_foods.food_id", "desc").then((data)=>{
+        return res.status(200).send(data);
+      }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+      });
+});
+
 router.post("/addFood", createValidation, (req,res)=>{
     var image_path = null;
     if(req.files && req.files.food_image != null){
