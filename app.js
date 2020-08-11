@@ -13,6 +13,7 @@ const dollarRouter = require("./routes/dollar.js");
 const tablesRouter = require("./routes/tables.js");
 const rolesRouter = require("./routes/roles.js");
 const invoiceRouter=require('./routes/invoice.js');
+const cashierRouter = require("./routes/cashier.js");
 const indexRouter = require("./routes/indexPage.js");
 
 const app = express();
@@ -39,8 +40,9 @@ app.use("/delivery", deliveryRouter);
 app.use("/dollar", dollarRouter);
 app.use("/tables", tablesRouter);
 app.use("/roles", rolesRouter);
-app.use('/invoice',invoiceRouter);
-app.use('/index',indexRouter);
+app.use('/invoice', invoiceRouter);
+app.use('/cashier', cashierRouter);
+app.use('/index', indexRouter);
 
 app.get("/backup", (req,res) => {
   mysqldump({
