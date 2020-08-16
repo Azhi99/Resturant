@@ -13,10 +13,10 @@ router.post("/getNoOfInvoices", async (req, res) => {
   d_month.setMonth( d_month.getMonth() - 1 );
   d_month = d_month.toISOString().split("T")[0];
 
-  const [{all_invoice}] = await db("tbl_invoice").count("invoice_id as all_invoice");
-  const [{daily_invoice}] = await db("tbl_invoice").where("invoice_date", d_now).count("invoice_id as daily_invoice");
-  const [{weekly_invoice}] = await db("tbl_invoice").whereBetween("invoice_date", [d_week, d_now]).count("invoice_id as weekly_invoice");
-  const [{monthly_invoice}] = await db("tbl_invoice").whereBetween("invoice_date", [d_month, d_now]).count("invoice_id as monthly_invoice");
+  const [{all_invoice}] = await db("tbl_invoice").where("status", "1").count("invoice_id as all_invoice");
+  const [{daily_invoice}] = await db("tbl_invoice").where("invoice_date", d_now).where("status", "1").count("invoice_id as daily_invoice");
+  const [{weekly_invoice}] = await db("tbl_invoice").whereBetween("invoice_date", [d_week, d_now]).where("status", "1").count("invoice_id as weekly_invoice");
+  const [{monthly_invoice}] = await db("tbl_invoice").whereBetween("invoice_date", [d_month, d_now]).where("status", "1").count("invoice_id as monthly_invoice");
   return res.status(200).json({
     all_invoice,
     daily_invoice,
@@ -41,7 +41,7 @@ router.post("/getDailyInvoice", async (req, res) => {
     .where("tbl_invoice.invoice_date", new Date().toISOString().split("T")[0])
     .orderBy("tbl_invoice.invoice_id", "desc");
 
-    const [{daily_sold}] = await db("tbl_invoice").where("invoice_date", new Date().toISOString().split("T")[0]).sum("amount_paid as daily_sold");
+    const [{daily_sold}] = await db("tbl_invoice").where("invoice_date", new Date().toISOString().split("T")[0]).andWhere("tbl_invoice.status", "1").sum("amount_paid as daily_sold");
     return res.status(200).json({
       invoices,
       daily_sold
