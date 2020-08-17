@@ -73,17 +73,16 @@ router.post("/setFood", (req, res) => {
             });
         });
     } else {
-        db("tbl_invoice").where("invoice_id", req.body.invoice_id).select(["status"]).then((data) => {
-            console.log(data);
-            if(data == 1){
+        db("tbl_invoice").where("invoice_id", req.body.invoice_id).select(["status"]).then(( [{status}] ) => {
+            if(status == 1){
                 return res.status(500).json({
                     message: "ئەم وەصڵە فرۆشراوە"
                 });
             } else {
-                db("tbl_invoice_detail").where("food_id", req.body.food_id).select().then((data) => {
-                    if(data){
+                db("tbl_invoice_detail").where("invoice_id", req.body.invoice_id).andWhere("food_id", req.body.food_id).select().then((data) => {
+                    if(data.length != 0){
                         db("tbl_invoice_detail").where("invoice_id", req.body.invoice_id).andWhere("food_id", req.body.food_id).update({
-                            qty: db.raw(" qty + 1")
+                            qty: db.raw("qty + 1")
                         }).then(() => {
                             return res.status(200).json({
                                 message: "Updated"
@@ -95,7 +94,7 @@ router.post("/setFood", (req, res) => {
                         });
                     } else {
                         db("tbl_invoice_detail").insert({
-                            invoice_id,
+                            invoice_id: req.body.invoice_id,
                             food_id: req.body.food_id,
                             qty: 1,
                             note: null
