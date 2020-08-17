@@ -39,9 +39,13 @@ router.post("/getInvoiceByTable/:table_num", async (req, res) => {
 
 router.post("/setFood", (req, res) => {
     if(req.body.invoice_id == null){
+        var table_num = req.body.table_num;
+        if(table_num == -1){
+            table_num = null;
+        }
         db("tbl_invoice").insert({
             type: req.body.type,
-            table_num: req.body.table_num,
+            table_num,
             status: "0",
             total_price: 0,
             amount_paid: 0,
