@@ -43,38 +43,53 @@ router.post("/setFood", (req, res) => {
         if(table_num == -1){
             table_num = null;
         }
-        db("tbl_invoice").insert({
-            type: req.body.type,
-            table_num,
-            status: "0",
-            total_price: 0,
-            amount_paid: 0,
-            discount: 0,
-            service: 0 ,
-            user_id: 16,
-            invoice_date: db.fn.now()
-        }).then(([data]) => {
-            var invoice_id = data;
-            db("tbl_invoice_detail").insert({
-                invoice_id,
-                food_id: req.body.food_id,
-                qty: 1,
-                note: null
-            }).then(([data]) => {
-                return res.status(200).json({
-                    message: "Inserted",
-                    invoice_id,
-                    id: data
-                });
-            }).catch((err) => {
+        db("tbl_tables").where("table_num", table_num).select(["state"]).then(([{state}]) => {
+            if(typeof state != "undefined" && state == 1){
                 return res.status(500).json({
-                    message: err
+                    message: "ئەم مێزە حـجـز کراوە، سەرەتا بەتاڵی بکە"
                 });
-            });
-        }).catch((err) => {
-            return res.status(500).json({
-                message: err
-            });
+            } else {
+                if(table_num != null){
+                    db("tbl_tables").where("table_num", table_num).update({
+                        state: "2"
+                    }).then(() => {
+                        req.app.io.emit("taked", table_num);
+                    });
+                }
+                db("tbl_invoice").insert({
+                    type: req.body.type,
+                    table_num,
+                    status: "0",
+                    total_price: 0,
+                    amount_paid: 0,
+                    discount: 0,
+                    service: 0 ,
+                    user_id: 16,
+                    invoice_date: db.fn.now()
+                }).then(([data]) => {
+                    var invoice_id = data;
+                    db("tbl_invoice_detail").insert({
+                        invoice_id,
+                        food_id: req.body.food_id,
+                        qty: 1,
+                        note: null
+                    }).then(([data]) => {
+                        return res.status(200).json({
+                            message: "Inserted",
+                            invoice_id,
+                            id: data
+                        });
+                    }).catch((err) => {
+                        return res.status(500).json({
+                            message: err
+                        });
+                    });
+                }).catch((err) => {
+                    return res.status(500).json({
+                        message: err
+                    });
+                });
+            }
         });
     } else {
         db("tbl_invoice").where("invoice_id", req.body.invoice_id).select(["status"]).then(( [{status}] ) => {
