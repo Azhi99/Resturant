@@ -138,4 +138,45 @@ router.post("/setFood", (req, res) => {
     }
 });
 
+router.post("/changeTable/:invoice_id", (req, res) => {
+    db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["type"]).then(([{type}]) => {
+        if(type == 0){
+            db("tbl_tables").where("table_num", req.body.new_table).select(["state"]).then(([{state}]) => {
+                if(state == 1){
+                    return res.status(500).json({
+                        message: "ئەم مێزە حیجز کراوە"
+                    });
+                } else if(state == 2){
+                    return res.status(500).json({
+                        message: "ئەم مێزە گـیراوە"
+                    });
+                } else {
+                    db("tbl_invoice").where("invoice_id", req.params.invoice_id).update({
+                        table_num: req.body.new_table
+                    }).then(() => {
+                        db("tbl_tables").where("table_num", req.body.old_table).update({
+                            state: "0"
+                        }).then(() => {
+                            req.app.io.emit("settedNull", req.body.old_table);
+                            db("tbl_tables").where("table_num", req.body.new_table).update({
+                                state: "2"
+                            }).then(() => {
+                                req.app.io.emit("taked", req.body.new_table);
+                                return res.status(200).json({
+                                    message: "Table Changed"
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        } else {
+            return res.status(500).json({
+                message: "ناتوانیت مـێزەکە بگۆڕیت"
+            });
+        } 
+        
+    });
+});
+
 module.exports = router;
