@@ -40,15 +40,16 @@ router.post("/getInvoiceByTable/:table_num", async (req, res) => {
 router.post("/setFood", (req, res) => {
     if(req.body.invoice_id == null){
         var table_num = req.body.table_num;
-        if(table_num == -1){
-            table_num = null;
-        }
-        db("tbl_tables").where("table_num", table_num).select(["state"]).then(([{state}]) => {
-            if(typeof state != "undefined" && state == 1){
+        
+        db("tbl_tables").where("table_num", table_num).select().then(([data]) => {
+            if(typeof data != "undefined" && data.state == 1){
                 return res.status(500).json({
                     message: "ئەم مێزە حـجـز کراوە، سەرەتا بەتاڵی بکە"
                 });
             } else {
+                if(table_num == -1){
+                    table_num = null;
+                }
                 if(table_num != null){
                     db("tbl_tables").where("table_num", table_num).update({
                         state: "2"
@@ -138,7 +139,48 @@ router.post("/setFood", (req, res) => {
     }
 });
 
-router.post("/changeTable/:invoice_id", (req, res) => {
+router.delete("/deleteInvoiceFood/:invoice_detail_id/:invoice_id", (req, res) => {
+    db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["status"]).then(([{status}]) => {
+        if(status == 1){
+            return res.status(500).json({
+                message: "ئەم وەصڵە فرۆشراوە، ناتوانی خواردنەکانی بسڕیتەوە"
+            });
+        } else {
+            db("tbl_invoice_detail").where("id_id", req.params.invoice_detail_id).delete().then(() => {
+                db("tbl_invoice_detail").where("invoice_id", req.params.invoice_id).count("* as noOfInvoices").then(([{noOfInvoices}]) => {
+                    if(noOfInvoices == 0){
+                        db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["table_num"]).then(([data]) => {
+                            if(data.table_num){
+                                db("tbl_tables").where("table_num", data.table_num).update({
+                                    state: "0"
+                                }).then(() => req.app.io.emit("settedNull", data.table_num));
+                            }
+                            db("tbl_invoice").where("invoice_id", req.params.invoice_id).delete().then(() => {
+                                return res.status(200).json({
+                                    message: "Invoice Deleted"
+                                });
+                            });
+                        });
+                    } else {
+                        return res.status(200).json({
+                            message: "Food Deleted"
+                        });
+                    }
+                });
+            }).catch((err) => {
+                return res.status(500).json({
+                    message: err
+                });
+            });
+        }
+    }).catch((err) => {
+        return res.status(500).json({
+            message: err
+        });
+    });
+});
+
+router.patch("/changeTable/:invoice_id", (req, res) => {
     db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["type"]).then(([{type}]) => {
         if(type == 0){
             db("tbl_tables").where("table_num", req.body.new_table).select(["state"]).then(([{state}]) => {
