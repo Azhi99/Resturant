@@ -40,7 +40,6 @@ router.post("/getDailyInvoice", async (req, res) => {
     .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
     .where("tbl_invoice.invoice_date", new Date().toISOString().split("T")[0])
     .orderBy("tbl_invoice.invoice_id", "desc");
-
     const [{daily_sold}] = await db("tbl_invoice").where("invoice_date", new Date().toISOString().split("T")[0]).andWhere("tbl_invoice.status", "1").sum("amount_paid as daily_sold");
     return res.status(200).json({
       invoices,

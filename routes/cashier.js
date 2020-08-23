@@ -66,7 +66,7 @@ router.post("/setFood", (req, res) => {
                     discount: 0,
                     service: 0 ,
                     user_id: 16,
-                    invoice_date: db.fn.now()
+                    invoice_date: new Date().toISOString().split("T")[0]
                 }).then(([data]) => {
                     var invoice_id = data;
                     db("tbl_invoice_detail").insert({
@@ -137,6 +137,50 @@ router.post("/setFood", (req, res) => {
             });
         });
     }
+});
+
+router.post("/sellInvoice", (req, res) => {
+    db("tbl_invoice").where("invoice_id", req.body.invoice_id).select(["status"]).limit(1).then(([{status}]) => {
+        if(status == 1){
+            return res.status(500).json({
+                message: "ئەم وەصڵە فرۆشراوە"
+            });
+        } else {
+            db("tbl_invoice").where("invoice_id", req.body.invoice_id).update({
+                status: "1",
+                total_price: req.body.total_price,
+                amount_paid: req.body.amount_paid,
+                service: req.body.service,
+                discount: req.body.discount
+            }).then(() => {
+                db("tbl_invoice").where("invoice_id", req.body.invoice_id).select(["type", "table_num"]).limit(1).then(([data]) => {
+                    if(data.table_num){
+                        db("tbl_tables").where("table_num", data.table_num).update({
+                            state: "0"
+                        }).then(() => {
+                            req.app.io.emit("settedNull", data.table_num);
+                        });
+                    }
+                    if(data.type == 2){
+                        db("tbl_delivery").insert({
+                            invoice_id: req.body.invoice_id,
+                            address: req.body.address,
+                            phone: req.body.phone,
+                            delivery_price: req.body.delivery_price
+                        }).then(() => {
+                            return res.status(200).json({
+                                message: "Invoice Sold"
+                            });
+                        });
+                    } else {
+                        return res.status(200).json({
+                            message: "Invoice Sold"
+                        });
+                    }
+                });
+            });
+        }
+    });
 });
 
 router.delete("/deleteInvoiceFood/:invoice_detail_id/:invoice_id", (req, res) => {

@@ -5,6 +5,14 @@ const { db } = require("../DB/db_config.js");
 const { body } = require("express-validator");
 const validate = require("../validators/validate.js");
 
+router.post("/getData", (req, res) => {
+    db("tbl_dollar").where("dollar_id", 1).select(["dinar"]).then(([{dinar}]) => {
+        return res.status(200).json({
+            dollar_price: dinar
+        });
+    });
+});
+
 router.patch("/updateDollar",[
     body("dollar")
         .isNumeric({ gt: -1 }).withMessage("Dollar must be number"),
