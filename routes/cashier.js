@@ -224,6 +224,62 @@ router.delete("/deleteInvoiceFood/:invoice_detail_id/:invoice_id", (req, res) =>
     });
 });
 
+router.delete("/minusFood/:invoice_detail_id/:invoice_id", (req, res) => {
+    db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["status"]).limit(1).then(([{status}]) => {
+        if(status == 1){
+            return res.status(500).json({
+                message: "ئەم وەصڵە فرۆشراوە، ناتوانی هیچ خواردنێک کەم بکەیتەوە"
+            });
+        } else {
+            db("tbl_invoice_detail").where("id_id", req.params.invoice_detail_id).select(["qty"]).limit(1).then(([{qty}]) => {
+                if(qty == 1){
+                    db("tbl_invoice_detail").where("id_id", req.params.invoice_detail_id).delete().then(() => {
+                        db("tbl_invoice_detail").where("invoice_id", req.params.invoice_id).count("* as no_of_foods").then(([{no_of_foods}]) => {
+                            if(no_of_foods >= 1){
+                                return res.status(200).json({
+                                    message: "Food Deleted"
+                                });
+                            } else {
+                                db("tbl_invoice").where("invoice_id", req.params.invoice_id).delete().then(() => {
+                                    return res.status(200).json({
+                                        message: "Invoice Deleted"
+                                    });
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    db("tbl_invoice_detail").where("id_id", req.params.invoice_detail_id).update({
+                        qty: db.raw("qty - 1")
+                    }).then(() => {
+                        return res.status(200).json({
+                            message: "Food Decreased"
+                        });
+                    });
+                }
+            });
+        }
+    });
+});
+
+router.patch("/plusFood/:invoice_detail_id/:invoice_id", (req, res) => {
+    db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["status"]).then(([{status}]) => {
+        if(status == 1){
+            return res.status(500).json({
+                message: "ئەم وەصڵە فرۆشراوە، ناتوانیت هیچ خواردنێک زیاد بکەیت"
+            });
+        } else {
+            db("tbl_invoice_detail").where("id_id", req.params.invoice_detail_id).update({
+                qty: db.raw("qty + 1")
+            }).then(() => {
+                return res.status(200).json({
+                    message: "Food Increased"
+                });
+            });
+        }
+    });
+})
+
 router.patch("/changeTable/:invoice_id", (req, res) => {
     db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["type"]).then(([{type}]) => {
         if(type == 0){
