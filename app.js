@@ -1,8 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 const socketio = require("socket.io");
 const mysqldump = require("mysqldump");
+const session = require("express-session");
+const path = require('path')
 
 const userRouter = require("./routes/user.js");
 const foodTypesRouter = require("./routes/food_types.js");
@@ -15,6 +18,7 @@ const rolesRouter = require("./routes/roles.js");
 const invoiceRouter=require('./routes/invoice.js');
 const cashierRouter = require("./routes/cashier.js");
 const indexRouter = require("./routes/indexPage.js");
+const { db } = require("./DB/db_config.js");
 
 const app = express();
 
@@ -32,6 +36,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static("public"));
 
+app.use(session({
+  resave: false,
+  saveUninitialized: true,
+  secret: "suly_rest_db"
+}));
+
 app.use("/user", userRouter);
 app.use("/food_type", foodTypesRouter);
 app.use("/foods", foodsRouter);
@@ -44,6 +54,64 @@ app.use('/invoice', invoiceRouter);
 app.use('/cashier', cashierRouter);
 app.use('/index', indexRouter);
 
+var user_roles = [];
+
+app.post("/login", (req, res) => {
+  if(!req.session.isLogged){
+    db("tbl_users").where("username", (req.body.username).trim()).select(["password", "user_id", "full_name", "role"]).limit(1).then(([data]) => {
+      if(typeof data != "undefined"){
+        bcrypt.compare((req.body.password).trim(), data.password, (err, result) => {
+          if(result){
+            req.session.isLogged = true;
+            req.session.username = req.body.username.trim();
+            req.session.user_id = data.user_id;
+            req.session.password = req.body.password.trim();
+            req.session.full_name = data.full_name;
+            req.session.role = data.role;
+            if(data.role == "User"){
+              db("tbl_roles").where("user_id", data.user_id).select(["roles"]).limit(1).then(([{roles}]) => {
+                user_roles = roles;
+              });
+            }
+            return res.status(200).json({
+              message: "Login Success"
+            });
+          } else {
+            return res.status(500).json({
+              message: "وشەی نهێنی هەڵەیە"
+            });
+          }
+        });
+      } else {
+        return res.status(500).json({
+          message: "ناوی بەکارهێنەر هەڵەیە"
+        });
+      }
+    });
+  }
+});
+
+app.post("/logout", (req, res) => {
+  user_roles = [];
+  req.session.destroy();
+  return res.status(200).json({
+    message: "Logout Success"
+  });
+});
+
+app.post("/isLogged", (req, res) => {
+  if(req.session.user_id > 0){
+    return res.status(200).json({
+      message: "Logged"
+    });
+  } else {
+    return res.status(200).json({
+      message: "Not Logged"
+    });
+  }
+  
+});
+
 app.get("/backup", (req,res) => {
   mysqldump({
     connection: {
@@ -55,3 +123,8 @@ app.get("/backup", (req,res) => {
     dumpToFile: "./suly_rest.sql"
   });
 });
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+

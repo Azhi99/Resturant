@@ -240,9 +240,18 @@ router.delete("/minusFood/:invoice_detail_id/:invoice_id", (req, res) => {
                                     message: "Food Deleted"
                                 });
                             } else {
-                                db("tbl_invoice").where("invoice_id", req.params.invoice_id).delete().then(() => {
-                                    return res.status(200).json({
-                                        message: "Invoice Deleted"
+                                db("tbl_invoice").where("invoice_id", req.params.invoice_id).select(["table_num"]).then(([{table_num}]) => {
+                                    if(table_num != null){
+                                        db("tbl_tables").where("table_num", table_num).update({
+                                            state: "0"
+                                        }).then(() => {
+                                            req.app.io.emit("settedNull", table_num);
+                                        });
+                                    }
+                                    db("tbl_invoice").where("invoice_id", req.params.invoice_id).delete().then(() => {
+                                        return res.status(200).json({
+                                            message: "Invoice Deleted"
+                                        });
                                     });
                                 });
                             }
