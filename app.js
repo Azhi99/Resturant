@@ -33,7 +33,12 @@ app.io = io;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:8080"
+  ],
+  credentials: true
+}));
 app.use(express.static("public"));
 
 app.use(session({
@@ -54,7 +59,6 @@ app.use('/invoice', invoiceRouter);
 app.use('/cashier', cashierRouter);
 app.use('/index', indexRouter);
 
-var user_roles = [];
 
 app.post("/login", (req, res) => {
   if(!req.session.isLogged){
@@ -65,17 +69,20 @@ app.post("/login", (req, res) => {
             req.session.isLogged = true;
             req.session.username = req.body.username.trim();
             req.session.user_id = data.user_id;
-            req.session.password = req.body.password.trim();
             req.session.full_name = data.full_name;
             req.session.role = data.role;
             if(data.role == "User"){
               db("tbl_roles").where("user_id", data.user_id).select(["roles"]).limit(1).then(([{roles}]) => {
-                user_roles = roles;
+                req.session.user_roles = roles.split(",");
+                return res.status(200).json({
+                  message: "Login Success"
+                });
+              });
+            } else {
+              return res.status(200).json({
+                message: "Login Success"
               });
             }
-            return res.status(200).json({
-              message: "Login Success"
-            });
           } else {
             return res.status(500).json({
               message: "وشەی نهێنی هەڵەیە"
@@ -102,14 +109,24 @@ app.post("/logout", (req, res) => {
 app.post("/isLogged", (req, res) => {
   if(req.session.user_id > 0){
     return res.status(200).json({
-      message: "Logged"
+      message: "Logged",
+      user_type: req.session.role,
+      user_roles: req.session.user_roles
     });
   } else {
     return res.status(200).json({
       message: "Not Logged"
     });
   }
-  
+});
+
+app.post("/getUser", (req, res) => {
+  if(req.session.user_id > 0){
+    return res.status(200).json({
+      user_id: req.session.user_id,
+      username: req.session.full_name
+    });
+  }
 });
 
 app.get("/backup", (req,res) => {

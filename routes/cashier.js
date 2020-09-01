@@ -65,7 +65,7 @@ router.post("/setFood", (req, res) => {
                     amount_paid: 0,
                     discount: 0,
                     service: 0 ,
-                    user_id: 16,
+                    user_id: req.session.user_id,
                     invoice_date: new Date().toISOString().split("T")[0]
                 }).then(([data]) => {
                     var invoice_id = data;

@@ -64,6 +64,9 @@ router.post("/addFood", createValidation, (req,res)=>{
             });
         }
     } 
+    if(req.body.color_value == "null"){
+        req.body.color_value = null;
+    }
     db("tbl_foods").insert({
         food_name: req.body.food_name,
         type_id: req.body.type_id,
