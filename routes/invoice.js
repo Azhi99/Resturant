@@ -232,7 +232,8 @@ router.patch("/updateInvoice/:id", (req, res) => {
 });
 
 router.delete("/deleteInvoice/:id", (req, res) => {
-  db("tbl_invoice")
+  db("tbl_invoice_detail").where("invoice_id", req.params.id).delete().then(() => {
+    db("tbl_invoice")
     .where("invoice_id", req.params.id)
     .del()
     .then((result) => {
@@ -242,9 +243,14 @@ router.delete("/deleteInvoice/:id", (req, res) => {
     })
     .catch((err) => {
       return res.status(500).json({
-        message: err,
+        message: err
       });
     });
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err
+    });
+  });
 });
 
 module.exports = router;
