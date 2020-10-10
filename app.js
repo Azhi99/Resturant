@@ -5,7 +5,9 @@ require("dotenv").config();
 const socketio = require("socket.io");
 const mysqldump = require("mysqldump");
 const session = require("express-session");
-const path = require('path')
+const path = require('path');
+const ThermalPrinter = require("node-thermal-printer").printer;
+const PrinterTypes = require("node-thermal-printer").types;
 
 const userRouter = require("./routes/user.js");
 const foodTypesRouter = require("./routes/food_types.js");
@@ -19,6 +21,16 @@ const invoiceRouter=require('./routes/invoice.js');
 const cashierRouter = require("./routes/cashier.js");
 const indexRouter = require("./routes/indexPage.js");
 const { db } = require("./DB/db_config.js");
+
+let printer = new ThermalPrinter({                               
+  interface: 'printer:POS-80',  
+  driver: require('printer'),
+  characterSet: 'WPC1256_ARABIC',
+  type: PrinterTypes.EPSON,     
+  removeSpecialCharacters: false,                           
+  lineCharacter: "_",                                       
+});
+
 
 const app = express();
 
@@ -127,6 +139,18 @@ app.post("/getUser", (req, res) => {
       username: req.session.full_name
     });
   }
+});
+
+app.get("/print", (req, res) => {
+  printer.leftRight("وەصڵ: 12", "مێز: 5"); 
+  printer.drawLine();
+  printer.tableCustom([                                      
+    { text:"Left", align:"LEFT", width:0.5 },
+    { text:"Center", align:"CENTER", width:0.25, bold:true },
+    { text:"Right", align:"RIGHT", cols:8 }
+  ]);
+  printer.cut();
+  printer.execute();
 });
 
 app.get("/backup", (req,res) => {
