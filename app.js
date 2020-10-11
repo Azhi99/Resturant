@@ -25,7 +25,7 @@ const { db } = require("./DB/db_config.js");
 let printer = new ThermalPrinter({                               
   interface: 'printer:POS-80',  
   driver: require('printer'),
-  characterSet: 'WPC1256_ARABIC',
+  characterSet: 'PC850_MULTILINGUAL',
   type: PrinterTypes.EPSON,     
   removeSpecialCharacters: false,                           
   lineCharacter: "_",                                       
@@ -142,13 +142,7 @@ app.post("/getUser", (req, res) => {
 });
 
 app.get("/print", (req, res) => {
-  printer.leftRight("وەصڵ: 12", "مێز: 5"); 
-  printer.drawLine();
-  printer.tableCustom([                                      
-    { text:"Left", align:"LEFT", width:0.5 },
-    { text:"Center", align:"CENTER", width:0.25, bold:true },
-    { text:"Right", align:"RIGHT", cols:8 }
-  ]);
+  printer.raw(Buffer.from("چۆنی باشی"));
   printer.cut();
   printer.execute();
 });
