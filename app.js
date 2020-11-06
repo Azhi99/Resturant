@@ -8,6 +8,7 @@ const session = require("express-session");
 const path = require('path');
 const ThermalPrinter = require("node-thermal-printer").printer;
 const PrinterTypes = require("node-thermal-printer").types;
+const opn = require("opn");
 
 const userRouter = require("./routes/user.js");
 const foodTypesRouter = require("./routes/food_types.js");
@@ -37,6 +38,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const server = app.listen(port, () => {
+  opn("http://localhost:3000");
   console.log(`Server started at port ${port}`);
 });
 
