@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const {jsPDF} = require("jspdf");
 require("dotenv").config();
 const socketio = require("socket.io");
 const mysqldump = require("mysqldump");
@@ -24,7 +25,7 @@ const indexRouter = require("./routes/indexPage.js");
 const { db } = require("./DB/db_config.js");
 
 let printer = new ThermalPrinter({                               
-  interface: 'printer:POS-80',  
+  interface: 'printer:POS-80-Series',  
   driver: require('printer'),
   characterSet: 'PC850_MULTILINGUAL',
   type: PrinterTypes.EPSON,     
@@ -143,10 +144,12 @@ app.post("/getUser", (req, res) => {
   }
 });
 
-app.get("/print", (req, res) => {
-  printer.raw(Buffer.from("چۆنی باشی"));
-  printer.cut();
-  printer.execute();
+app.post("/print", (req, res) => {
+  console.log(req.body.doc);
+  var doc = new jsPDF();
+  doc = {...req.body.doc}
+  doc.save('./test.pdf')
+  return res.sendStatus(200);
 });
 
 app.get("/backup", (req,res) => {
