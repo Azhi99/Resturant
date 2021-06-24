@@ -131,6 +131,36 @@ router.post("/getMonthlyInvoice", async (req, res) => {
     });
 });
 
+router.post("/getBetweenDate", async (req, res) => {
+  const invoices = await db.select(
+      "tbl_invoice.invoice_id as invoice_id",
+      "tbl_invoice.type as type",
+      "tbl_invoice.status as status",
+      "tbl_invoice.discount as discount",
+      "tbl_invoice.service as service",
+      "tbl_invoice.total_price as total_price",
+      "tbl_users.full_name as username",
+      "tbl_invoice.invoice_date as invoice_date"
+    )
+    .from("tbl_invoice")
+    .join("tbl_users", "tbl_users.user_id", "=", "tbl_invoice.user_id")
+    .whereBetween("tbl_invoice.invoice_date", [req.body.date1, req.body.date2])
+    .orderBy("tbl_invoice.invoice_id", "desc")
+    .offset(req.body.offset);
+
+    const [{betweenSold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [req.body.date1, req.body.date2]).sum("amount_paid as betweenSold");
+    return res.status(200).json({
+      invoices,
+      betweenSold
+    });
+});
+
+router.post('/getUserSoldByDate', (req, res) => {
+  db.raw("select sum(tbl_invoice.amount_paid) as total, tbl_users.full_name as user from tbl_invoice join tbl_users on(tbl_invoice.user_id = tbl_users.user_id) where tbl_invoice.invoice_date between ? and ? group by tbl_invoice.user_id", [req.body.date1, req.body.date2]).then(([data]) => {
+    return res.status(200).send(data);
+  });
+});
+
 router.post("/addInvoice", (req, res) => {
   db("tbl_invoice").insert({
       type: req.body.type,

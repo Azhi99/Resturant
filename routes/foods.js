@@ -207,4 +207,66 @@ router.delete("/deleteImage/:id", deleteValidation, async (req,res) => {
     });
 });
 
+router.get('/countFoodsBySingleDate/:date/:u_id', async (req, res) => {
+    try {
+        if(req.params.u_id != 0) {
+            const foods = await db.select(
+                'tbl_foods.food_name as food_name',
+                db.raw('sum(tbl_invoice_detail.qty) as qty')
+            ).from('tbl_invoice_detail')
+             .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
+             .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date=? and status='1' and user_id=?)", [req.params.date, req.params.u_id])
+             .groupBy('tbl_invoice_detail.food_id')
+             .orderBy(2, 'desc');
+
+            return res.status(200).send(foods);
+        }
+        const foods = await db.select(
+            'tbl_foods.food_name as food_name',
+            db.raw('sum(tbl_invoice_detail.qty) as qty')
+        ).from('tbl_invoice_detail')
+         .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
+         .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date=? and status='1')", [req.params.date])
+         .groupBy('tbl_invoice_detail.food_id')
+         .orderBy(2, 'desc');
+
+        return res.status(200).send(foods);
+    } catch (error) {
+        return res.status(500).send({
+            error
+        });
+    }
+});
+
+router.get('/countFoodsByTwoDate/:date1/:date2/:u_id', async (req, res) => {
+    try {
+        if(req.params.u_id != 0) {
+            const foods = await db.select(
+                'tbl_foods.food_name as food_name',
+                db.raw('sum(tbl_invoice_detail.qty) as qty')
+            ).from('tbl_invoice_detail')
+             .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
+             .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date between ? and ? and status='1' and user_id=?)", [req.params.date1, req.params.date2, req.params.u_id])
+             .groupBy('tbl_invoice_detail.food_id')
+             .orderBy(2, 'desc');
+
+            return res.status(200).send(foods);
+        }
+        const foods = await db.select(
+            'tbl_foods.food_name as food_name',
+            db.raw('sum(tbl_invoice_detail.qty) as qty')
+        ).from('tbl_invoice_detail')
+         .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
+         .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date between ? and ? and status='1')", [req.params.date1, req.params.date2])
+         .groupBy('tbl_invoice_detail.food_id')
+         .orderBy(2, 'desc');
+
+        return res.status(200).send(foods);
+    } catch (error) {
+        return res.status(500).send({
+            error
+        });
+    }
+});
+
 module.exports = router;

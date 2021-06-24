@@ -5,7 +5,7 @@ const {jsPDF} = require("jspdf");
 require("dotenv").config();
 const socketio = require("socket.io");
 const mysqldump = require("mysqldump");
-const session = require("express-session");
+const session = require("client-sessions");
 const path = require('path');
 const ThermalPrinter = require("node-thermal-printer").printer;
 const PrinterTypes = require("node-thermal-printer").types;
@@ -27,7 +27,7 @@ const { db } = require("./DB/db_config.js");
 let printer = new ThermalPrinter({                               
   interface: 'printer:POS-80-Series',  
   driver: require('printer'),
-  characterSet: 'PC850_MULTILINGUAL',
+  characterSet: 'SLOVENIA',
   type: PrinterTypes.EPSON,     
   removeSpecialCharacters: false,                           
   lineCharacter: "_",                                       
@@ -49,17 +49,16 @@ app.io = io;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: [
-    "http://localhost:8080"
-  ],
+  origin: ['http://192.168.1.5:8080', 'http://192.168.0.104:8080'],
   credentials: true
 }));
 app.use(express.static("public"));
 
 app.use(session({
-  resave: false,
-  saveUninitialized: true,
-  secret: "suly_rest_db"
+  cookieName: "session",
+  secret: "suly_tech_staff",
+  duration: 12 * 60 * 60 * 1000,
+  activeDuration: 10 * 60 * 60 * 1000
 }));
 
 app.use("/user", userRouter);
@@ -145,10 +144,9 @@ app.post("/getUser", (req, res) => {
 });
 
 app.post("/print", (req, res) => {
-  console.log(req.body.doc);
-  var doc = new jsPDF();
-  doc = {...req.body.doc}
-  doc.save('./test.pdf')
+  printer.print("تێست تێست"); 
+  printer.cut();
+  printer.execute();
   return res.sendStatus(200);
 });
 
