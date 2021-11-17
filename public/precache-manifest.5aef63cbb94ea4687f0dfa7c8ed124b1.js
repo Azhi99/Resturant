@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/bootstrap.bundle.min.js"
   },
   {
-    "revision": "dd210c2bbf31e5348d2a",
+    "revision": "26188a10a894e2f87045",
     "url": "/css/app.fb5f70a0.css"
   },
   {
@@ -80,7 +80,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/img/fastfood.4cd7e684.png"
   },
   {
-    "revision": "2ae0a245298c3cab27416efdfbdd83d2",
+    "revision": "1a66e75d882e3e642545b5df63dfea4c",
     "url": "/index.html"
   },
   {
@@ -88,8 +88,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/jquery.min.js"
   },
   {
-    "revision": "dd210c2bbf31e5348d2a",
-    "url": "/js/app.3215a21b.js"
+    "revision": "26188a10a894e2f87045",
+    "url": "/js/app.11410942.js"
   },
   {
     "revision": "b0be30e87cd7c9597937",
