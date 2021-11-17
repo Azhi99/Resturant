@@ -21,13 +21,13 @@ router.post("/getInvoiceByTable/:table_num", async (req, res) => {
         "tbl_invoice_detail.id_id as id",
         "tbl_foods.food_name as food_name",
         "tbl_invoice_detail.qty as qty",
-        "tbl_foods.price as price",
-        db.raw("(tbl_foods.price * tbl_invoice_detail.qty) as all_price")
+        "tbl_invoice_detail.price as price",
+        db.raw("(tbl_invoice_detail.price * tbl_invoice_detail.qty) as all_price")
     ).from("tbl_invoice_detail")
      .join("tbl_foods", "tbl_foods.food_id", "=", "tbl_invoice_detail.food_id")
      .where("tbl_invoice_detail.invoice_id", invoice_id);
     
-    var [[{total_price}]] = await db.raw("select sum(tbl_invoice_detail.qty * tbl_foods.price) as total_price from tbl_invoice_detail join tbl_foods on tbl_invoice_detail.food_id = tbl_foods.food_id where tbl_invoice_detail.invoice_id = ? limit 1", [invoice_id]);
+    var [[{total_price}]] = await db.raw("select sum(qty * price) as total_price from tbl_invoice_detail where invoice_id = ? limit 1", [invoice_id]);
     
     return res.status(200).json({
         invoice,
@@ -73,6 +73,7 @@ router.post("/setFood", (req, res) => {
                         invoice_id,
                         food_id: req.body.food_id,
                         qty: 1,
+                        price: req.body.price,
                         note: null
                     }).then(([data]) => {
                         return res.status(200).json({
@@ -117,6 +118,7 @@ router.post("/setFood", (req, res) => {
                             invoice_id: req.body.invoice_id,
                             food_id: req.body.food_id,
                             qty: 1,
+                            price: req.body.price,
                             note: null
                         }).then(([data]) => {
                             return res.status(200).json({

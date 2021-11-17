@@ -64,8 +64,11 @@ router.post("/getAllInvoice", async (req, res) => {
     .offset(req.body.offset)
     .limit(25);
 
-    return res.status(200).json({
-      invoices
+    const [[{totalPrice}]] = await db.raw("select sum(total_price) as totalPrice from tbl_invoice");
+
+    return res.status(200).send({
+      invoices,
+      totalPrice
     });
 });
 
@@ -93,10 +96,10 @@ router.post("/getWeeklyInvoice", async (req, res) => {
     .offset(req.body.offset)
     .limit(25);
 
-    const [{weekly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_week, d_now]).sum("amount_paid as weekly_sold");
+    const [{weekly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_week, d_now]).sum("total_price as weekly_sold");
     return res.status(200).json({
       invoices,
-      weekly_sold
+      totalPrice: weekly_sold
     });
 });
 
@@ -124,10 +127,10 @@ router.post("/getMonthlyInvoice", async (req, res) => {
     .offset(req.body.offset)
     .limit(25);
 
-    const [{monthly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_month, d_now]).sum("amount_paid as monthly_sold");
-    return res.status(200).json({
+    const [{monthly_sold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [d_month, d_now]).sum("total_price as monthly_sold");
+    return res.status(200).send({
       invoices,
-      monthly_sold
+      totalPrice: monthly_sold
     });
 });
 
@@ -148,10 +151,10 @@ router.post("/getBetweenDate", async (req, res) => {
     .orderBy("tbl_invoice.invoice_id", "desc")
     .offset(req.body.offset);
 
-    const [{betweenSold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [req.body.date1, req.body.date2]).sum("amount_paid as betweenSold");
-    return res.status(200).json({
+    const [{betweenSold}] = await db("tbl_invoice").whereBetween("tbl_invoice.invoice_date", [req.body.date1, req.body.date2]).sum("total_price as betweenSold");
+    return res.status(200).send({
       invoices,
-      betweenSold
+      totalPrice: betweenSold
     });
 });
 
@@ -205,8 +208,8 @@ router.post("/getInvoiceDetail/:id", async (req,res) => {
     "tbl_invoice_detail.id_id as id",
     "tbl_foods.food_name as food_name",
     "tbl_invoice_detail.qty as qty",
-    "tbl_foods.price as price",
-    db.raw("(tbl_foods.price * tbl_invoice_detail.qty) as all_price"),
+    "tbl_invoice_detail.price as price",
+    db.raw("(tbl_invoice_detail.price * tbl_invoice_detail.qty) as all_price"),
     "tbl_invoice_detail.note as note"
   ).from("tbl_invoice_detail")
    .join("tbl_foods", "tbl_foods.food_id", "=", "tbl_invoice_detail.food_id")

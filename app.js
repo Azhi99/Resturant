@@ -1,14 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const {jsPDF} = require("jspdf");
 require("dotenv").config();
 const socketio = require("socket.io");
 const mysqldump = require("mysqldump");
 const session = require("client-sessions");
 const path = require('path');
-const ThermalPrinter = require("node-thermal-printer").printer;
-const PrinterTypes = require("node-thermal-printer").types;
 const opn = require("opn");
 
 const userRouter = require("./routes/user.js");
@@ -24,14 +21,44 @@ const cashierRouter = require("./routes/cashier.js");
 const indexRouter = require("./routes/indexPage.js");
 const { db } = require("./DB/db_config.js");
 
-let printer = new ThermalPrinter({                               
-  interface: 'printer:POS-80-Series',  
-  driver: require('printer'),
-  characterSet: 'SLOVENIA',
-  type: PrinterTypes.EPSON,     
-  removeSpecialCharacters: false,                           
-  lineCharacter: "_",                                       
-});
+
+// const escpos = require('escpos');
+// escpos.USB = require('escpos-usb');
+// escpos.Network = require('escpos-network');
+
+// Select the adapter based on your printer type
+
+// const device  = new escpos.USB('1155','22339');
+
+// var device  = new escpos.Network('192.168.1.100');
+ 
+var options = { encoding: "UTF-16" }
+ 
+
+var fs = require('fs');
+// var text2png = require('text2png');
+
+// var printer = new escpos.Printer(device, options);
+
+// function printInvoice(fileName) {
+//   device  = new escpos.Network('192.168.1.100');
+   
+//    options = { encoding: "UTF-16"}
+//     printer = new escpos.Printer(device, options);
+//     const tux = path.join(__dirname, fileName + '.png');
+//     escpos.Image.load(tux, function(image){
+//     device.open(function(){
+
+
+//          printer.align('ct')
+//             .image(image,'d24')
+//             .then(() => { 
+//                 printer.cut().close();
+//             });
+//     });
+
+//     });
+// }
 
 
 const app = express();
@@ -49,7 +76,7 @@ app.io = io;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['http://192.168.1.5:8080', 'http://192.168.0.104:8080'],
+  origin: ['http://192.168.1.5:8080', 'http://192.168.1.9:8080', 'http://192.168.1.3:8080'],
   credentials: true
 }));
 app.use(express.static("public"));
@@ -143,10 +170,25 @@ app.post("/getUser", (req, res) => {
   }
 });
 
+ 
+
 app.post("/print", (req, res) => {
-  printer.print("تێست تێست"); 
-  printer.cut();
-  printer.execute();
+  let text = '';
+  text += 'مێزی: ' + req.body.tableNum;
+  text += '\t';
+  text += 'وەصڵی ژمارە: ' + req.body.invoiceNumber;
+  text += ' \n\n --------------------------------------- \n ';
+  for(let food of req.body.foods) {
+    text += food.qty + ' ' + food.food_name + ' \n\n';
+  }
+  fs.writeFileSync( req.body.invoiceNumber + '.png', text2png(text, {color: 'black', padding: 40}));
+  setTimeout(() => {
+
+    printInvoice(req.body.invoiceNumber);
+  }, 500)
+  // setTimeout(() => {
+  //   fs.unlinkSync(req.body.invoiceNumber + '.png');
+  // }, 2000)
   return res.sendStatus(200);
 });
 

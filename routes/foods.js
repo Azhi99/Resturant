@@ -1,6 +1,7 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const fs = require("fs");
+const path = require('path');
 const { db } = require("../DB/db_config");
 const { createValidation, deleteValidation, updateValidation } = require("../validators/foods.js");
 const router = express.Router();
@@ -212,22 +213,26 @@ router.get('/countFoodsBySingleDate/:date/:u_id', async (req, res) => {
         if(req.params.u_id != 0) {
             const foods = await db.select(
                 'tbl_foods.food_name as food_name',
-                db.raw('sum(tbl_invoice_detail.qty) as qty')
+                db.raw('sum(tbl_invoice_detail.qty) as qty'),
+                'tbl_invoice_detail.price as price',
+                db.raw('(tbl_invoice_detail.price * tbl_invoice_detail.qty) as total_price')
             ).from('tbl_invoice_detail')
              .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
              .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date=? and status='1' and user_id=?)", [req.params.date, req.params.u_id])
-             .groupBy('tbl_invoice_detail.food_id')
+             .groupByRaw('tbl_invoice_detail.food_id, tbl_invoice_detail.price')
              .orderBy(2, 'desc');
 
             return res.status(200).send(foods);
         }
         const foods = await db.select(
             'tbl_foods.food_name as food_name',
-            db.raw('sum(tbl_invoice_detail.qty) as qty')
+            db.raw('sum(tbl_invoice_detail.qty) as qty'),
+            'tbl_invoice_detail.price as price',
+            db.raw('(tbl_invoice_detail.price * tbl_invoice_detail.qty) as total_price')
         ).from('tbl_invoice_detail')
          .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
          .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date=? and status='1')", [req.params.date])
-         .groupBy('tbl_invoice_detail.food_id')
+         .groupByRaw('tbl_invoice_detail.food_id, tbl_invoice_detail.price')
          .orderBy(2, 'desc');
 
         return res.status(200).send(foods);
@@ -243,22 +248,26 @@ router.get('/countFoodsByTwoDate/:date1/:date2/:u_id', async (req, res) => {
         if(req.params.u_id != 0) {
             const foods = await db.select(
                 'tbl_foods.food_name as food_name',
-                db.raw('sum(tbl_invoice_detail.qty) as qty')
+                db.raw('sum(tbl_invoice_detail.qty) as qty'),
+                'tbl_invoice_detail.price as price',
+                db.raw('(tbl_invoice_detail.price * tbl_invoice_detail.qty) as total_price')
             ).from('tbl_invoice_detail')
              .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
              .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date between ? and ? and status='1' and user_id=?)", [req.params.date1, req.params.date2, req.params.u_id])
-             .groupBy('tbl_invoice_detail.food_id')
+             .groupByRaw('tbl_invoice_detail.food_id, tbl_invoice_detail.price')
              .orderBy(2, 'desc');
 
             return res.status(200).send(foods);
         }
         const foods = await db.select(
             'tbl_foods.food_name as food_name',
-            db.raw('sum(tbl_invoice_detail.qty) as qty')
+            db.raw('sum(tbl_invoice_detail.qty) as qty'),
+            'tbl_invoice_detail.price as price',
+            db.raw('(tbl_invoice_detail.price * tbl_invoice_detail.qty) as total_price')
         ).from('tbl_invoice_detail')
          .join('tbl_foods', 'tbl_foods.food_id', '=', 'tbl_invoice_detail.food_id')
          .whereRaw("tbl_invoice_detail.invoice_id in (select invoice_id from tbl_invoice where invoice_date between ? and ? and status='1')", [req.params.date1, req.params.date2])
-         .groupBy('tbl_invoice_detail.food_id')
+         .groupByRaw('tbl_invoice_detail.food_id, tbl_invoice_detail.price')
          .orderBy(2, 'desc');
 
         return res.status(200).send(foods);
@@ -267,6 +276,10 @@ router.get('/countFoodsByTwoDate/:date1/:date2/:u_id', async (req, res) => {
             error
         });
     }
+});
+
+router.get('/images/:name', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/food_images/' + req.params.name));
 });
 
 module.exports = router;
