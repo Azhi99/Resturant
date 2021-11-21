@@ -181,20 +181,40 @@ app.post("/print", (req, res) => {
   // }
   // fs.writeFileSync( req.body.invoiceNumber + '.png', text2png(text, {color: 'black', padding: 40}));
    let html = '<html> <head> <meta charset="utf-8"> </head> <body> ';
-   html += '<table style="border: 1px solid; font-size: 32px; width: 80%;">';
+   html += '<table style="border: 1px solid; font-size: 32px; width: 73.5%;">';
    html += '<tbody>';
    html += '<tr style="border: 1px solid;">';
-   html += `<td style="border: 1px solid; padding: 8px 5px;"> مێزی: ${req.body.tableNum} </td>`;
-   html += `<td style="border: 1px solid; padding: 8px 5px;"> وەصڵی ژمارە: ${req.body.invoiceNumber} </td>`;
+   html += `<td style="border: 1px solid; padding: 8px 5px; text-align: center;"> مێزی: ${req.body.tableNum} </td>`;
+   html += `<td style="border: 1px solid; padding: 8px 5px; text-align: center;"> وەصڵی ژمارە: ${req.body.invoiceNumber} </td>`;
    html += '</tr>';
    html += '</tbody>';
    html += '</table>';
 
    html += "<hr>"
-   
-  //  for(let food of req.body.foods) {
-  //     html += food.qty + ' ' + food.food_name + ' \n\n';
-  //   }
+
+   html += '<table style="font-size: 32px; width: 73.5%;">';
+   html += '<thead>';
+   html += '<tr style="border: 1px solid;">';
+   html += `<th style="border: 1px solid; padding: 8px 5px; text-align: center;"> دانـــە </th>`;
+   html += `<th style="border: 1px solid; padding: 8px 5px; text-align: center;"> خواردن </th>`;
+   html += '</tr>';
+   html += '<tbody>';
+    for(let food of req.body.foods) {
+      html += '<tr style="border: 1px solid;">';
+      html += `<td style="border: 1px solid; padding: 8px 5px; text-align: center;"> ${food.qty} </td>`;
+      html += `<td style="border: 1px solid; padding: 8px 5px; text-align: center;"> ${food.food_name} </td>`;
+      html += '</tr>'
+
+      html += '<tr style="border: 1px solid;">';
+      html += `<td style="border: 1px solid; padding: 8px 5px; text-align: center;" colspan="2"> ١ دانە پیازی زۆربێ </td>`;
+      html += '</tr>'
+
+    }
+   html += '</tbody>';
+   html += '</thead>';
+   html += '</table>';
+
+  
   
    html += '</body></html>'
 
@@ -203,7 +223,7 @@ app.post("/print", (req, res) => {
     html
   }).then(() => {
     console.log('Success');
-    // printInvoice(req.body.invoiceNumber);
+    printInvoice(req.body.invoiceNumber);
   })
 
   
