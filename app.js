@@ -22,13 +22,13 @@ const indexRouter = require("./routes/indexPage.js");
 const { db } = require("./DB/db_config.js");
 
 
-// const escpos = require('escpos');
-// escpos.USB = require('escpos-usb');
-// escpos.Network = require('escpos-network');
+const escpos = require('escpos');
+escpos.USB = require('escpos-usb');
+escpos.Network = require('escpos-network');
 
 // Select the adapter based on your printer type
 
-// const device  = new escpos.USB('1155','22339');
+var device  = new escpos.USB('1155','22339');
 
 // var device  = new escpos.Network('192.168.1.100');
  
@@ -36,29 +36,27 @@ var options = { encoding: "UTF-16" }
  
 
 var fs = require('fs');
-// var text2png = require('text2png');
+var text2png = require('text2png');
 
-// var printer = new escpos.Printer(device, options);
+var printer = new escpos.Printer(device, options);
 
-// function printInvoice(fileName) {
-//   device  = new escpos.Network('192.168.1.100');
+function printInvoice(fileName) {
+  device  = new escpos.USB('1155','22339');
    
-//    options = { encoding: "UTF-16"}
-//     printer = new escpos.Printer(device, options);
-//     const tux = path.join(__dirname, fileName + '.png');
-//     escpos.Image.load(tux, function(image){
-//     device.open(function(){
+   options = { encoding: "UTF-16"}
+    printer = new escpos.Printer(device, options);
+    const tux = path.join(__dirname, fileName + '.png');
+    escpos.Image.load(tux, function(image){
+    device.open(function(){
+         printer.align('ct')
+            .image(image,'d24')
+            .then(() => { 
+                printer.cut().close();
+            });
+    });
 
-
-//          printer.align('ct')
-//             .image(image,'d24')
-//             .then(() => { 
-//                 printer.cut().close();
-//             });
-//     });
-
-//     });
-// }
+    });
+}
 
 
 const app = express();
@@ -76,7 +74,7 @@ app.io = io;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['http://192.168.1.5:8080', 'http://192.168.1.9:8080', 'http://192.168.1.3:8080'],
+  origin: ['http://192.168.1.5:8080', 'http://192.168.1.9:8080', 'http://192.168.1.2:8080'],
   credentials: true
 }));
 app.use(express.static("public"));
@@ -170,25 +168,47 @@ app.post("/getUser", (req, res) => {
   }
 });
 
- 
+const nodeHtmlToImage = require('node-html-to-image')
 
 app.post("/print", (req, res) => {
-  let text = '';
-  text += 'مێزی: ' + req.body.tableNum;
-  text += '\t';
-  text += 'وەصڵی ژمارە: ' + req.body.invoiceNumber;
-  text += ' \n\n --------------------------------------- \n ';
-  for(let food of req.body.foods) {
-    text += food.qty + ' ' + food.food_name + ' \n\n';
-  }
-  fs.writeFileSync( req.body.invoiceNumber + '.png', text2png(text, {color: 'black', padding: 40}));
-  setTimeout(() => {
+  // let text = '';
+  // text += 'مێزی: ' + req.body.tableNum;
+  // text += '\t';
+  // text += 'وەصڵی ژمارە: ' + req.body.invoiceNumber;
+  // text += ' \n\n --------------------------------------- \n ';
+  // for(let food of req.body.foods) {
+  //   text += food.qty + ' ' + food.food_name + ' \n\n';
+  // }
+  // fs.writeFileSync( req.body.invoiceNumber + '.png', text2png(text, {color: 'black', padding: 40}));
+   let html = '<html> <head> <meta charset="utf-8"> </head> <body> ';
+   html += '<table style="border: 1px solid; font-size: 32px; width: 80%;">';
+   html += '<tbody>';
+   html += '<tr style="border: 1px solid;">';
+   html += `<td style="border: 1px solid; padding: 8px 5px;"> مێزی: ${req.body.tableNum} </td>`;
+   html += `<td style="border: 1px solid; padding: 8px 5px;"> وەصڵی ژمارە: ${req.body.invoiceNumber} </td>`;
+   html += '</tr>';
+   html += '</tbody>';
+   html += '</table>';
 
-    printInvoice(req.body.invoiceNumber);
-  }, 500)
-  // setTimeout(() => {
-  //   fs.unlinkSync(req.body.invoiceNumber + '.png');
-  // }, 2000)
+   html += "<hr>"
+   
+  //  for(let food of req.body.foods) {
+  //     html += food.qty + ' ' + food.food_name + ' \n\n';
+  //   }
+  
+   html += '</body></html>'
+
+   nodeHtmlToImage({
+    output: `./${req.body.invoiceNumber}.png`,
+    html
+  }).then(() => {
+    console.log('Success');
+    // printInvoice(req.body.invoiceNumber);
+  })
+
+  
+  
+  
   return res.sendStatus(200);
 });
 
